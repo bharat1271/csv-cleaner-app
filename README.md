@@ -69,10 +69,12 @@ streamlit run app.py
 Have ideas or want to suggest features?
 Feel free to open an issue or submit a pull request.
 
-📬 Feedback
+📬 Feedback:- 
+
 If you find this helpful or have suggestions for improvements, connect with me on LinkedIn or drop an issue here on GitHub.
 
-🧠 Author
+🧠 Author:-
+
 👤 Bharat Kumar
 Data Research Analyst | BI Enthusiast | Streamlit Explorer
 
