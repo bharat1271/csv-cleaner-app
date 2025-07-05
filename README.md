@@ -46,10 +46,35 @@ Built with **Streamlit** and **Python**, this tool lets you upload any CSV file 
 - Python 3.8+
 
 ---
-
 ## 📦 Run Locally
 
 ### 1. Clone the repo
-```bash
+
 git clone https://github.com/bharat1271/csv-cleaner-app.git
 cd csv-cleaner-app
+
+###2. Install dependencies
+
+pip install -r requirements.txt
+
+###3. Launch the app
+
+streamlit run app.py
+🤝 Contribute
+
+Have ideas or want to suggest features?
+Feel free to open an issue or submit a pull request.
+
+📬 Feedback
+If you find this helpful or have suggestions for improvements, connect with me on LinkedIn or drop an issue here on GitHub.
+
+🧠 Author
+👤 Bharat Kumar
+Data Research Analyst | BI Enthusiast | Streamlit Explorer
+
+
+⚠️ This project is intended for educational and internal tool use. No license applied.
+
+---
+
+
