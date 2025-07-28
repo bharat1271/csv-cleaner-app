@@ -1,80 +1,76 @@
-# 🧹 CSV Cleaner App (Streamlit)
+# 🧹 CSV Cleaner App
 
-A user-friendly, no-code web app for data analysts, scientists, and engineers to clean messy CSV files quickly and consistently.
-
-Built with **Streamlit** and **Python**, this tool lets you upload any CSV file and apply common cleaning operations with just a few clicks — no coding or Excel macros required.
+A simple yet powerful tool for cleaning CSV files and performing text operations, built with **Python** and **Streamlit**.
 
 ---
 
-## ✨ Features
+## 📂 Versions
 
-- ✅ Remove duplicate rows  
-- ✅ Trim leading/trailing whitespace  
-- ✅ Capitalize names (excluding small connecting words)  
-- ✅ Drop completely blank rows  
-- ✅ Fill missing values with custom text  
-- ✅ Fix text case (lower, upper, or title)  
-- ✅ Find and replace values  
-- ✅ Convert text columns to numeric  
-- ✅ Split a column by delimiter (e.g., \"First Last\")  
-- ✅ Download cleaned data instantly  
-- ✅ View a cleaning log and before/after preview  
+### ✅ Version 1
+- Basic CSV cleaning:
+  - Remove duplicates
+  - Trim whitespace
+  - Drop blank rows
+  - Fill missing values
+  - Fix text case
+- Output as cleaned CSV
 
----
-
-## 🚀 Try it Online
-
-🔗 [Live App](https://bh-csv-cleaner-app.streamlit.app/)  
+📂 [View v1 Code](./v1)
 
 ---
 
-## 📥 How to Use
+### 🚀 Version 2 (Latest)
+- Includes all features of v1, plus:
+  - ✅ Text Tools Section:
+    - Proper-case text formatting (skip small words like *and, of, the*)
+    - Extract 8-digit IDs from text
+    - Count frequency of 8-digit IDs
+    - Compare two texts and find duplicates
+- UI Improvements
 
-1. Upload a `.csv` file via the file uploader
-2. Select one or more cleaning operations using checkboxes
-3. Customize inputs (like fill value, find/replace, or delimiter)
-4. Click **“Clean Data”**  
-5. Preview the cleaned data and download the final CSV
+📂 [View v2 Code](./v2)
+
+---
+
+## 🌐 Live Demo (v2)
+👉 [Click to open the app](https://bh-csv-cleaner-app.streamlit.app/)
 
 ---
 
-## 🧰 Tech Stack
-
-- [Streamlit](https://streamlit.io/) – Web app framework for Python
-- [Pandas](https://pandas.pydata.org/) – DataFrame operations
-- Python 3.8+
+## 🛠 Tech Stack
+- Python
+- Streamlit
+- Pandas
 
 ---
-## 📦 Run Locally
 
-### 1. Clone the repo
-
+## ✅ How to Run Locally
+1. Clone the repo:
 git clone https://github.com/bharat1271/csv-cleaner-app.git
+cd csv-cleaner-app/v2
 
-cd csv-cleaner-app
-
-### 2. Install dependencies
-
+2. Install dependencies:
 pip install -r requirements.txt
 
-### 3. Launch the app
-
+3. Run Streamlit app:
 streamlit run app.py
+
 
 ---
 
-🤝 Contribute
+## 🔥 Features Overview
+✔ Upload any CSV file  
+✔ Apply multiple cleaning options in one go  
+✔ Text operations for quick formatting & analysis  
+✔ Download cleaned data instantly  
 
-Have ideas or want to suggest features?
-Feel free to open an issue or submit a pull request.
+---
 
-📬 Feedback:- 
+## 👤 Author
+**Bharat Kumar**  
+_Data Research Analyst | BI Enthusiast | Streamlit Explorer
 
-If you find this helpful or have suggestions for improvements, connect with me on LinkedIn or drop an issue here on GitHub.
+---
 
-🧠 Author:-
-
-👤 Bharat Kumar
-Data Research Analyst | BI Enthusiast | Streamlit Explorer
-
-⚠️ This project is intended for educational and internal tool use. No license applied.
+## ⭐ Contribute
+Have ideas for improvement? Fork the repo or drop a suggestion!
