@@ -46,14 +46,14 @@ A simple yet powerful tool for cleaning CSV files and performing text operations
 
 ## ✅ How to Run Locally
 1. Clone the repo:
-git clone https://github.com/bharat1271/csv-cleaner-app.git
-cd csv-cleaner-app/v2
+ git clone https://github.com/bharat1271/csv-cleaner-app.git
+ cd csv-cleaner-app/v2
 
 2. Install dependencies:
-pip install -r requirements.txt
+ pip install -r requirements.txt
 
 3. Run Streamlit app:
-streamlit run app.py
+ streamlit run app.py
 
 
 ---
@@ -68,7 +68,7 @@ streamlit run app.py
 
 ## 👤 Author
 **Bharat Kumar**  
-_Data Research Analyst | BI Enthusiast | Streamlit Explorer
+Data Research Analyst | BI Enthusiast | Streamlit Explorer
 
 ---
 
