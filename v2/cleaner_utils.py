@@ -1,58 +1,110 @@
 import pandas as pd
 import re
-from collections import Counter
 
-# Title case with exceptions (smart title)
-def smart_title(text):
-    exceptions = ['and', 'of', 'the', 'a', 'an', 'in']
-    words = str(text).lower().split()
-    return ' '.join([
-        words[0].capitalize()] + 
-        [w if w in exceptions else w.capitalize() for w in words[1:]]
-    ) if words else text
+def remove_duplicates(df):
+    before = len(df)
+    df = df.drop_duplicates()
+    return df, f"Removed {before - len(df)} duplicate rows" if before != len(df) else "No duplicates found"
 
-def format_text_title_case(text):
-    if not text.strip():
-        return "Please enter valid text."
-    lines = text.strip().split('\n')
-    formatted_lines = [smart_title(line) for line in lines]
-    return '\n'.join(formatted_lines)
+def trim_whitespace(df):
+    str_cols = df.select_dtypes(include='object').columns
+    df[str_cols] = df[str_cols].apply(lambda x: x.str.strip())
+    return df, f"Trimmed whitespace in columns: {', '.join(str_cols)}"
 
-def extract_8_digit_ids(text):
-    ids = re.findall(r'\b\d{8}\b', text)
-    if not ids:
-        return "No valid 8-digit IDs found."
-    return ",".join(ids)
+def capitalize_names(df):
+    name_cols = [c for c in df.columns if 'name' in c.lower()]
+    if not name_cols:
+        return df, "No 'name' column found for capitalization"
+    col = name_cols[0]
+    exceptions = {'and','of','the','a','an','in'}
+    def smart_title(txt):
+        words = str(txt).lower().split()
+        if not words: return txt
+        out = [words[0].capitalize()] + [w if w in exceptions else w.capitalize() for w in words[1:]]
+        return " ".join(out)
+    df[col] = df[col].astype(str).apply(smart_title)
+    return df, f"Capitalized names in column: {col}"
 
-def count_8_digit_ids(text):
-    ids = re.findall(r'\b\d{8}\b', text)
-    if not ids:
-        return "No valid 8-digit IDs found."
-    counts = Counter(ids)
-    return "\n".join([f"{k}: {v}" for k, v in counts.items()])
+def drop_blank_rows(df):
+    before = len(df)
+    df = df.dropna(how='all')
+    return df, f"Removed {before - len(df)} completely blank rows"
 
-def find_duplicates_and_uniques(text):
-    # Clean and split by commas or newline
-    items = re.findall(r'\b\d{8}\b', text)
-    if not items:
-        return "No valid 8-digit IDs found."
-    counter = Counter(items)
-    duplicates = [k for k, v in counter.items() if v > 1]
-    uniques = [k for k, v in counter.items() if v == 1]
-    return f"Duplicates: {', '.join(duplicates)}\nUniques: {', '.join(uniques)}"
+def fill_missing_values(df, fill_value="Missing"):
+    before = df.isnull().sum().sum()
+    df = df.fillna(fill_value)
+    after = df.isnull().sum().sum()
+    return df, f"Filled {before - after} missing values with '{fill_value}'"
 
-def extract_ids_and_names(raw_text):
-    lines = [line.strip() for line in raw_text.split('\n') if line.strip()]
-    extracted = []
-    i = 0
-    while i < len(lines) - 1:
-        if re.match(r'^\d{8}$', lines[i]):
-            id_val = lines[i]
-            name = lines[i+1]
-            extracted.append(f"{id_val}  {name}")
-            i += 2
-        else:
-            i += 1
-    if not extracted:
-        return "No ID and Name pairs found."
-    return '\n'.join(extracted)
+def fix_text_case(df, mode='title'):
+    str_cols = df.select_dtypes(include='object').columns
+    if mode == 'lower':
+        df[str_cols] = df[str_cols].apply(lambda x: x.str.lower())
+    elif mode == 'upper':
+        df[str_cols] = df[str_cols].apply(lambda x: x.str.upper())
+    else:
+        df[str_cols] = df[str_cols].apply(lambda x: x.str.title())
+    return df, f"Formatted text case as '{mode}' in: {', '.join(str_cols)}"
+
+def find_and_replace(df, find_val, replace_val):
+    df = df.replace(find_val, replace_val)
+    return df, f"Replaced '{find_val}' with '{replace_val}'"
+
+def convert_numbers(df):
+    converted = []
+    for col in df.columns:
+        if df[col].dtype == 'object':
+            try:
+                df[col] = pd.to_numeric(df[col], errors='raise')
+                converted.append(col)
+            except:
+                pass
+    if converted:
+        return df, f"Converted columns to numeric: {', '.join(converted)}"
+    return df, "No numeric conversions applied"
+
+def split_column(df, col, delimiter=' ', into_two=True):
+    if col not in df.columns:
+        return df, f"Column '{col}' not found for splitting"
+    parts = df[col].astype(str).str.split(delimiter, 1, expand=True)
+    df[f"{col}_1"], df[f"{col}_2"] = parts[0], parts[1]
+    return df, f"Split '{col}' into '{col}_1' and '{col}_2'"
+
+# ─── New Text Operations ───────────────────────────────────────────────────────
+
+def smart_sentence_format(text):
+    """
+    Proper-case a sentence, skipping small connecting words.
+    """
+    exceptions = {'a','an','and','in','of','the','to','for'}
+    words = text.lower().split()
+    if not words:
+        return ""
+    formatted = [words[0].capitalize()]
+    for w in words[1:]:
+        formatted.append(w if w in exceptions else w.capitalize())
+    return " ".join(formatted)
+
+def extract_8digit_ids_from_series(series):
+    """
+    Given a pandas Series of strings, extract all 8-digit IDs and count frequencies.
+    Returns a DataFrame with columns ['ID', 'Count'].
+    """
+    ids = series.astype(str).str.extractall(r'(\b\d{8}\b)')[0]
+    counts = ids.value_counts().reset_index()
+    counts.columns = ['ID', 'Count']
+    return counts
+
+def extract_8digit_ids_from_text(text):
+    """
+    Returns a list of all 8-digit IDs found in the given text.
+    """
+    return re.findall(r'\b\d{8}\b', text)
+
+def extract_duplicates_between(text1, text2):
+    """
+    Returns a list of duplicated words/tokens present in both text1 and text2.
+    """
+    set1 = set(text1.split())
+    set2 = set(text2.split())
+    return list(set1 & set2)
