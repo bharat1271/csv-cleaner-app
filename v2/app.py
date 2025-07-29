@@ -1,86 +1,131 @@
 import streamlit as st
 import pandas as pd
-from cleaner_utils import *
+from cleaner_utils import (
+    smart_title_text,
+    extract_ids,
+    find_duplicates_and_uniques,
+    count_ids,
+    extract_ids_and_names,
+    remove_duplicates,
+    trim_whitespace,
+    capitalize_names,
+    drop_blank_rows,
+    fill_missing_values,
+    fix_text_case,
+    find_and_replace,
+    convert_numbers,
+    split_column,
+)
 
-st.set_page_config(page_title="CSV Cleaner App", layout="wide")
-st.title("🧹 CSV Data Cleaner & Text Tools")
+st.set_page_config(page_title="CSV Cleaner & Text Utilities", layout="wide")
+st.title("🧹 CSV Cleaner & Text Utilities")
 
-tab = st.tabs(["CSV Cleaning", "Text Operations"])[0] if False else st.tabs(["CSV Cleaning","Text Operations"])
-csv_tab, text_tab = tab
+TAB1, TAB2 = st.tabs(["📂 CSV Cleaning", "📝 Text Utilities"])
 
-# ─── CSV Cleaning Tab ─────────────────────────────────────────────────────────
-with csv_tab:
-    uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
+with TAB1:
+    st.header("CSV Cleaning Operations")
+
+    uploaded_file = st.file_uploader("Upload CSV File", type="csv")
+    if "csv_df" not in st.session_state:
+        st.session_state.csv_df = None
+    if "csv_logs" not in st.session_state:
+        st.session_state.csv_logs = []
+
+
     if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        st.success(f"Loaded file: {df.shape[0]} rows × {df.shape[1]} cols")
-        st.dataframe(df.head())
+        st.session_state.csv_df = pd.read_csv(uploaded_file)
+        st.success("File uploaded and loaded successfully!")
+        st.write(st.session_state.csv_df.head())
 
-        st.header("🔧 Cleaning Operations")
-        with st.expander("Basic Cleaning"):
-            dedupe     = st.checkbox("Remove Duplicates")
-            trim       = st.checkbox("Trim Whitespace")
-            drop_blank = st.checkbox("Drop Blank Rows")
-        with st.expander("Text Formatting"):
-            capitalize = st.checkbox("Capitalize Names")
-            fix_case   = st.checkbox("Fix Text Case")
-            case_mode  = st.selectbox("Case Mode", ["lower","upper","title"])
-            replace    = st.checkbox("Find & Replace")
-            find_val   = st.text_input("Find", value="null")
-            replace_val= st.text_input("Replace with", value="NA")
-        with st.expander("Value Handling"):
-            fillna   = st.checkbox("Fill Missing Values")
-            fill_val = st.text_input("Fill with", value="Missing")
-            convert  = st.checkbox("Convert to Numeric")
-        with st.expander("Column Ops"):
-            split     = st.checkbox("Split Column")
-            split_col = st.text_input("Column to split", value="Full Name")
-            delim     = st.text_input("Delimiter", value=" ")
+    if st.session_state.csv_df is not None:
+        with st.expander("Select and Apply Operations Step-by-Step"):
+            if st.checkbox("Remove Duplicates"):
+                st.session_state.csv_df, msg = remove_duplicates(st.session_state.csv_df)
+                st.session_state.csv_logs.append(msg)
+                st.success(msg)
 
-        if st.button("🚀 Clean Data"):
-            cleaned = df.copy(); logs=[]
-            if dedupe:     cleaned, m=remove_duplicates(cleaned); logs.append(m)
-            if trim:       cleaned, m=trim_whitespace(cleaned); logs.append(m)
-            if capitalize: cleaned, m=capitalize_names(cleaned); logs.append(m)
-            if drop_blank: cleaned, m=drop_blank_rows(cleaned); logs.append(m)
-            if fillna:     cleaned, m=fill_missing_values(cleaned, fill_val); logs.append(m)
-            if fix_case:   cleaned, m=fix_text_case(cleaned, mode=case_mode); logs.append(m)
-            if replace:    cleaned, m=find_and_replace(cleaned, find_val, replace_val); logs.append(m)
-            if convert:    cleaned, m=convert_numbers(cleaned); logs.append(m)
-            if split:      cleaned, m=split_column(cleaned, split_col, delim); logs.append(m)
+            if st.checkbox("Trim Whitespace"):
+                st.session_state.csv_df, msg = trim_whitespace(st.session_state.csv_df)
+                st.session_state.csv_logs.append(msg)
+                st.success(msg)
 
-            st.success("Cleaning Complete")
-            st.markdown("**Log:**")
-            for l in logs: st.markdown(f"- {l}")
-            st.dataframe(cleaned.head())
-            csv_bytes = cleaned.to_csv(index=False).encode()
-            st.download_button("📥 Download CSV", csv_bytes, "cleaned.csv", "text/csv")
+            if st.checkbox("Capitalize Names"):
+                st.session_state.csv_df, msg = capitalize_names(st.session_state.csv_df)
+                st.session_state.csv_logs.append(msg)
+                st.success(msg)
 
-# ─── Text Operations Tab ──────────────────────────────────────────────────────
-with text_tab:
-    st.header("📝 Free Text Tools")
-    text_input = st.text_area("Enter your text here", height=150)
+            if st.checkbox("Drop Blank Rows"):
+                st.session_state.csv_df, msg = drop_blank_rows(st.session_state.csv_df)
+                st.session_state.csv_logs.append(msg)
+                st.success(msg)
 
-    if st.button("🔤 Proper-Case Sentence"):
-        result = smart_sentence_format(text_input)
-        st.write("**Formatted:**", result)
+            if st.checkbox("Fill Missing Values"):
+                fill_val = st.text_input("Fill Value", "Missing")
+                st.session_state.csv_df, msg = fill_missing_values(st.session_state.csv_df, fill_val)
+                st.session_state.csv_logs.append(msg)
+                st.success(msg)
 
-    st.write("---")
-    st.subheader("Extract 8-Digit IDs")
-    id_text = st.text_area("Enter text or paste column values, each on new line", height=100, key="ids")
-    if st.button("🔍 Extract IDs"):
-        ids = extract_8digit_ids_from_text(id_text)
-        st.write(ids or "No 8-digit IDs found.")
+            if st.checkbox("Fix Text Case"):
+                case_mode = st.selectbox("Case Mode", ["lower", "upper", "title"])
+                st.session_state.csv_df, msg = fix_text_case(st.session_state.csv_df, mode=case_mode)
+                st.session_state.csv_logs.append(msg)
+                st.success(msg)
 
-    if st.button("📊 Count ID Frequencies"):
-        series = pd.Series(id_text.splitlines())
-        freq_df = extract_8digit_ids_from_series(series)
-        st.dataframe(freq_df if not freq_df.empty else "No IDs to count.")
+            if st.checkbox("Find and Replace"):
+                find_val = st.text_input("Find", "null")
+                replace_val = st.text_input("Replace with", "NA")
+                st.session_state.csv_df, msg = find_and_replace(st.session_state.csv_df, find_val, replace_val)
+                st.session_state.csv_logs.append(msg)
+                st.success(msg)
 
-    st.write("---")
-    st.subheader("Find Duplicates Between Two Texts")
-    text_a = st.text_area("Text A", height=80, key="a")
-    text_b = st.text_area("Text B", height=80, key="b")
-    if st.button("🔁 Show Duplicates"):
-        dup = extract_duplicates_between(text_a, text_b)
-        st.write(dup or "No duplicates found.")
+            if st.checkbox("Convert Numbers"):
+                st.session_state.csv_df, msg = convert_numbers(st.session_state.csv_df)
+                st.session_state.csv_logs.append(msg)
+                st.success(msg)
+
+            if st.checkbox("Split Column"):
+                split_col = st.text_input("Column to Split", "Full Name")
+                delim = st.text_input("Delimiter", " ")
+                st.session_state.csv_df, msg = split_column(st.session_state.csv_df, split_col, delimiter=delim)
+                st.session_state.csv_logs.append(msg)
+                st.success(msg)
+
+        st.subheader("Cleaned Data Preview")
+        st.dataframe(st.session_state.csv_df.head())
+
+        st.download_button(
+            label="📥 Download Cleaned CSV",
+            data=st.session_state.csv_df.to_csv(index=False).encode('utf-8'),
+            file_name="cleaned_data.csv",
+            mime="text/csv"
+        )
+
+        with st.expander("🔍 Cleaning Log"):
+            for log in st.session_state.csv_logs:
+                st.write("- " + log)
+
+with TAB2:
+    st.header("🆎 Text Processing Tools")
+
+    text_input = st.text_area("Enter text (IDs, Names, or mixed)", height=150)
+
+    if st.button("🧠 Convert to Smart Title"):
+        result = smart_title_text(text_input)
+        st.code(result, language="text")
+
+    if st.button("🔢 Extract 8-digit IDs"):
+        ids = extract_ids(text_input)
+        st.code(ids, language="text")
+
+    if st.button("🔍 Count IDs"):
+        count_df = count_ids(text_input)
+        st.write(count_df)
+
+    if st.button("🧬 Find Duplicates & Unique IDs"):
+        dupes, uniques = find_duplicates_and_uniques(text_input)
+        st.write(f"**Duplicates:** {dupes}")
+        st.write(f"**Unique Values:** {uniques}")
+
+    if st.button("🧾 Extract IDs and Names from Tool Dump"):
+        extracted = extract_ids_and_names(text_input)
+        st.code(extracted, language="text")
