@@ -1,86 +1,128 @@
 import streamlit as st
 import pandas as pd
-from cleaner_utils import *
+from cleaner_utils import (
+    smart_title_text,
+    count_ids,
+    extract_8_digit_ids,
+    find_duplicates_and_uniques,
+    extract_ids_and_names_from_tool_output
+)
 
-st.set_page_config(page_title="CSV Cleaner App", layout="wide")
-st.title("🧹 CSV Data Cleaner & Text Tools")
+st.set_page_config(page_title="CSV & Text Cleaner App", layout="wide")
+st.title("🧹 CSV & Text Cleaner App")
 
-tab = st.tabs(["CSV Cleaning", "Text Operations"])[0] if False else st.tabs(["CSV Cleaning","Text Operations"])
-csv_tab, text_tab = tab
+st.sidebar.title("Choose an Operation")
+option = st.sidebar.radio("Select a mode:", ["CSV Cleaning", "Text Operations"])
 
-# ─── CSV Cleaning Tab ─────────────────────────────────────────────────────────
-with csv_tab:
+if option == "CSV Cleaning":
     uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
+
     if uploaded_file:
         df = pd.read_csv(uploaded_file)
-        st.success(f"Loaded file: {df.shape[0]} rows × {df.shape[1]} cols")
-        st.dataframe(df.head())
+        st.write("### Preview of Uploaded Data:", df.head())
 
-        st.header("🔧 Cleaning Operations")
-        with st.expander("Basic Cleaning"):
-            dedupe     = st.checkbox("Remove Duplicates")
-            trim       = st.checkbox("Trim Whitespace")
-            drop_blank = st.checkbox("Drop Blank Rows")
-        with st.expander("Text Formatting"):
-            capitalize = st.checkbox("Capitalize Names")
-            fix_case   = st.checkbox("Fix Text Case")
-            case_mode  = st.selectbox("Case Mode", ["lower","upper","title"])
-            replace    = st.checkbox("Find & Replace")
-            find_val   = st.text_input("Find", value="null")
-            replace_val= st.text_input("Replace with", value="NA")
-        with st.expander("Value Handling"):
-            fillna   = st.checkbox("Fill Missing Values")
-            fill_val = st.text_input("Fill with", value="Missing")
-            convert  = st.checkbox("Convert to Numeric")
-        with st.expander("Column Ops"):
-            split     = st.checkbox("Split Column")
-            split_col = st.text_input("Column to split", value="Full Name")
-            delim     = st.text_input("Delimiter", value=" ")
+        operations = st.multiselect(
+            "Select cleaning operations:",
+            [
+                "Remove Duplicates",
+                "Trim Whitespace",
+                "Capitalize Names",
+                "Drop Blank Rows",
+                "Fill Missing Values",
+                "Fix Text Case",
+                "Find & Replace",
+                "Convert Numbers",
+                "Split Column"
+            ]
+        )
 
-        if st.button("🚀 Clean Data"):
-            cleaned = df.copy(); logs=[]
-            if dedupe:     cleaned, m=remove_duplicates(cleaned); logs.append(m)
-            if trim:       cleaned, m=trim_whitespace(cleaned); logs.append(m)
-            if capitalize: cleaned, m=capitalize_names(cleaned); logs.append(m)
-            if drop_blank: cleaned, m=drop_blank_rows(cleaned); logs.append(m)
-            if fillna:     cleaned, m=fill_missing_values(cleaned, fill_val); logs.append(m)
-            if fix_case:   cleaned, m=fix_text_case(cleaned, mode=case_mode); logs.append(m)
-            if replace:    cleaned, m=find_and_replace(cleaned, find_val, replace_val); logs.append(m)
-            if convert:    cleaned, m=convert_numbers(cleaned); logs.append(m)
-            if split:      cleaned, m=split_column(cleaned, split_col, delim); logs.append(m)
+        case_mode = st.selectbox("Text case mode:", ["lower", "upper", "title"])
+        fill_value = st.text_input("Value to fill missing cells with:", "Missing")
+        find_val = st.text_input("Find this value:", "null")
+        replace_val = st.text_input("Replace with:", "NA")
+        col_to_split = st.text_input("Column to split:", "Full Name")
+        delimiter = st.text_input("Delimiter for splitting:", " ")
 
-            st.success("Cleaning Complete")
-            st.markdown("**Log:**")
-            for l in logs: st.markdown(f"- {l}")
-            st.dataframe(cleaned.head())
-            csv_bytes = cleaned.to_csv(index=False).encode()
-            st.download_button("📥 Download CSV", csv_bytes, "cleaned.csv", "text/csv")
+        if st.button("Apply Cleaning"):
+            logs = []
+            if "Remove Duplicates" in operations:
+                df, msg = df.drop_duplicates(), "Removed duplicate rows"
+                logs.append(msg)
+            if "Trim Whitespace" in operations:
+                str_cols = df.select_dtypes(include='object').columns
+                df[str_cols] = df[str_cols].apply(lambda x: x.str.strip())
+                logs.append("Trimmed whitespace")
+            if "Capitalize Names" in operations:
+                name_cols = [col for col in df.columns if 'name' in col.lower()]
+                if name_cols:
+                    col = name_cols[0]
+                    df[col] = df[col].astype(str).apply(smart_title_text)
+                    logs.append(f"Capitalized names in column: {col}")
+            if "Drop Blank Rows" in operations:
+                df = df.dropna(how='all')
+                logs.append("Dropped blank rows")
+            if "Fill Missing Values" in operations:
+                df = df.fillna(fill_value)
+                logs.append(f"Filled missing values with '{fill_value}'")
+            if "Fix Text Case" in operations:
+                str_cols = df.select_dtypes(include='object').columns
+                if case_mode == 'lower':
+                    df[str_cols] = df[str_cols].apply(lambda x: x.str.lower())
+                elif case_mode == 'upper':
+                    df[str_cols] = df[str_cols].apply(lambda x: x.str.upper())
+                else:
+                    df[str_cols] = df[str_cols].apply(lambda x: x.str.title())
+                logs.append(f"Formatted text case to '{case_mode}'")
+            if "Find & Replace" in operations:
+                df = df.replace(find_val, replace_val)
+                logs.append(f"Replaced '{find_val}' with '{replace_val}'")
+            if "Convert Numbers" in operations:
+                for col in df.columns:
+                    try:
+                        df[col] = pd.to_numeric(df[col], errors='ignore')
+                    except:
+                        continue
+                logs.append("Converted applicable columns to numeric")
+            if "Split Column" in operations:
+                if col_to_split in df.columns:
+                    new_cols = df[col_to_split].str.split(delimiter, 1, expand=True)
+                    df[f"{col_to_split}_1"], df[f"{col_to_split}_2"] = new_cols[0], new_cols[1]
+                    logs.append(f"Split column '{col_to_split}'")
+            st.success("Cleaning complete")
+            st.write("\n".join(logs))
+            st.download_button("Download Cleaned CSV", df.to_csv(index=False), "cleaned_data.csv")
 
-# ─── Text Operations Tab ──────────────────────────────────────────────────────
-with text_tab:
-    st.header("📝 Free Text Tools")
-    text_input = st.text_area("Enter your text here", height=150)
+elif option == "Text Operations":
+    st.subheader("Free Text-Based Functions")
 
-    if st.button("🔤 Proper-Case Sentence"):
-        result = smart_sentence_format(text_input)
-        st.write("**Formatted:**", result)
+    mode = st.radio("Choose text operation:", [
+        "🧼 Convert to Proper Title Case",
+        "🔢 Count IDs",
+        "🧲 Extract 8-digit IDs",
+        "🧩 Find Duplicates and Uniques",
+        "📋 Extract IDs and Names from Raw Tool Output"
+    ])
 
-    st.write("---")
-    st.subheader("Extract 8-Digit IDs")
-    id_text = st.text_area("Enter text or paste column values, each on new line", height=100, key="ids")
-    if st.button("🔍 Extract IDs"):
-        ids = extract_8digit_ids_from_text(id_text)
-        st.write(ids or "No 8-digit IDs found.")
+    input_text = st.text_area("Paste your data here:")
 
-    if st.button("📊 Count ID Frequencies"):
-        series = pd.Series(id_text.splitlines())
-        freq_df = extract_8digit_ids_from_series(series)
-        st.dataframe(freq_df if not freq_df.empty else "No IDs to count.")
+    if st.button("Run Operation") and input_text:
+        if mode == "🧼 Convert to Proper Title Case":
+            result = smart_title_text(input_text)
+            st.text_area("Formatted Output", result, height=150)
 
-    st.write("---")
-    st.subheader("Find Duplicates Between Two Texts")
-    text_a = st.text_area("Text A", height=80, key="a")
-    text_b = st.text_area("Text B", height=80, key="b")
-    if st.button("🔁 Show Duplicates"):
-        dup = extract_duplicates_between(text_a, text_b)
-        st.write(dup or "No duplicates found.")
+        elif mode == "🔢 Count IDs":
+            result = count_ids(input_text)
+            st.write(result)
+
+        elif mode == "🧲 Extract 8-digit IDs":
+            result = extract_8_digit_ids(input_text)
+            st.text_area("Extracted IDs", result, height=150)
+
+        elif mode == "🧩 Find Duplicates and Uniques":
+            dup_text, uniq_text = find_duplicates_and_uniques(input_text)
+            st.text_area("Duplicates", dup_text, height=150)
+            st.text_area("Uniques", uniq_text, height=150)
+
+        elif mode == "📋 Extract IDs and Names from Raw Tool Output":
+            result = extract_ids_and_names_from_tool_output(input_text)
+            st.text_area("Extracted ID & Name Pairs", result, height=300)
