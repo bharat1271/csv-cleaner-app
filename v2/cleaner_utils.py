@@ -113,3 +113,14 @@ def extract_ids_and_names(text):
         else:
             i += 1
     return '\n'.join(pairs)
+    
+def extract_afili_ids(text):
+    pattern = r'\d+-\d+\s+(?:Processed|Failed)?\s*(\d+)\s+\d+'
+    afili_ids = re.findall(pattern, text)
+    return ', '.join(afili_ids)
+
+
+def extract_group_ids(text):
+    pattern = r'\d+-\d+\s+(?:Processed|Failed)?\s*\d+\s+(\d+)'
+    group_ids = re.findall(pattern, text)
+    return ', '.join(group_ids)
