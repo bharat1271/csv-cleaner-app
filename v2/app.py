@@ -134,28 +134,3 @@ with TAB2:
             dupes, uniques = find_duplicates_and_uniques(text_input)
             st.write(f"**Duplicates:** {dupes}")
             st.write(f"**Unique Values:** {uniques}")
-
-    # Second row: 3 buttons, can adjust layout as needed
-    col5, col6, col7, col8 = st.columns(4)
-
-    with col5:
-        if st.button("🧾 Extract IDs and Names"):
-            extracted = extract_ids_and_names(text_input)
-            st.code(extracted)
-
-    with col6:
-        if st.button("📥 Extract AfiliD only"):
-            afili_result = extract_afili_ids(text_input)
-            st.text_area("AfiliD values:", afili_result, height=100, key="afili_output")
-
-    with col7:
-        if st.button("📥 Extract Group ID only"):
-            group_result = extract_group_ids(text_input)
-            st.text_area("Group ID values:", group_result, height=100, key="group_output")
-    
-    # col8 is intentionally left blank to maintain layout alignment
-    with col8:
-        st.write("")  # filler to maintain spacing
-
-
-#Small change
