@@ -124,3 +124,6 @@ def extract_group_ids(text):
     pattern = r'\d+-\d+\s+(?:Processed|Failed)?\s*\d+\s+(\d+)'
     group_ids = re.findall(pattern, text)
     return ', '.join(group_ids)
+
+
+#Small change
