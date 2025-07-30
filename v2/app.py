@@ -15,6 +15,8 @@ from cleaner_utils import (
     find_and_replace,
     convert_numbers,
     split_column,
+    extract_afili_ids,
+    extract_group_ids,
 )
 
 st.set_page_config(page_title="CSV Cleaner & Text Utilities", layout="wide")
@@ -105,27 +107,52 @@ with TAB1:
                 st.write("- " + log)
 
 with TAB2:
-    st.header("🆎 Text Processing Tools")
+    st.subheader("🆎 Text Processing Tools")
 
-    text_input = st.text_area("Enter text (IDs, Names, or mixed)", height=150)
+    text_input = st.text_area("Enter text (IDs, Names, or mixed)", height=150, key="main_text_input")
 
-    if st.button("🧠 Convert to Smart Title"):
-        result = smart_title_text(text_input)
-        st.code(result, language="text")
+    # First row: 4 buttons
+    col1, col2, col3, col4 = st.columns(4)
 
-    if st.button("🔢 Extract 8-digit IDs"):
-        ids = extract_ids(text_input)
-        st.code(ids, language="text")
+    with col1:
+        if st.button("🧠 Convert to Smart Title"):
+            result = smart_title_text(text_input)
+            st.code(result)
 
-    if st.button("🔍 Count IDs"):
-        count_df = count_ids(text_input)
-        st.write(count_df)
+    with col2:
+        if st.button("🔢 Extract 8-digit IDs"):
+            ids = extract_ids(text_input)
+            st.code(ids)
 
-    if st.button("🧬 Find Duplicates & Unique IDs"):
-        dupes, uniques = find_duplicates_and_uniques(text_input)
-        st.write(f"**Duplicates:** {dupes}")
-        st.write(f"**Unique Values:** {uniques}")
+    with col3:
+        if st.button("🔍 Count IDs"):
+            count_df = count_ids(text_input)
+            st.dataframe(count_df)
 
-    if st.button("🧾 Extract IDs and Names from Tool Dump"):
-        extracted = extract_ids_and_names(text_input)
-        st.code(extracted, language="text")
+    with col4:
+        if st.button("🧬 Find Duplicates & Unique IDs"):
+            dupes, uniques = find_duplicates_and_uniques(text_input)
+            st.write(f"**Duplicates:** {dupes}")
+            st.write(f"**Unique Values:** {uniques}")
+
+    # Second row: 3 buttons, can adjust layout as needed
+    col5, col6, col7, col8 = st.columns(4)
+
+    with col5:
+        if st.button("🧾 Extract IDs and Names"):
+            extracted = extract_ids_and_names(text_input)
+            st.code(extracted)
+
+    with col6:
+        if st.button("📥 Extract AfiliD only"):
+            afili_result = extract_afili_ids(text_input)
+            st.text_area("AfiliD values:", afili_result, height=100, key="afili_output")
+
+    with col7:
+        if st.button("📥 Extract Group ID only"):
+            group_result = extract_group_ids(text_input)
+            st.text_area("Group ID values:", group_result, height=100, key="group_output")
+    
+    # col8 is intentionally left blank to maintain layout alignment
+    with col8:
+        st.write("")  # filler to maintain spacing
