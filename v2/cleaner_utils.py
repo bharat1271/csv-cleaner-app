@@ -85,18 +85,18 @@ def smart_title_text(text):
     ) if words else text
 
 def extract_ids(text):
-    ids = re.findall(r'\b\d{8}\b', text)
+    ids = re.findall(r'\d{8}', text)
     return ','.join(ids)
 
 def find_duplicates_and_uniques(text):
-    elements = re.findall(r'\b\d{8}\b', text)
+    elements = re.findall(r'\d{8}', text)
     count = Counter(elements)
     duplicates = [k for k, v in count.items() if v > 1]
     uniques = [k for k, v in count.items() if v == 1]
     return ', '.join(duplicates), ', '.join(uniques)
 
 def count_ids(text):
-    ids = re.findall(r'\b\d{8}\b', text)
+    ids = re.findall(r'\d{8}', text)
     id_count = Counter(ids)
     return pd.DataFrame(id_count.items(), columns=['ID', 'Count'])
 
@@ -113,13 +113,28 @@ def extract_ids_and_names(text):
         else:
             i += 1
     return '\n'.join(pairs)
-
+    
 def extract_afili_ids(text):
     pattern = r'\d+-\d+\s+(?:Processed|Failed)?\s*(\d+)\s+\d+'
     afili_ids = re.findall(pattern, text)
     return ','.join(afili_ids)
 
+
 def extract_group_ids(text):
     pattern = r'\d+-\d+\s+(?:Processed|Failed)?\s*\d+\s+(\d+)'
     group_ids = re.findall(pattern, text)
     return ','.join(group_ids)
+
+def split_id_name(text):
+    """
+    Splits lines like '12345678 ABCDEFGH' or '12345678 - ABCDEFGH'
+    into ID and Name cleanly.
+    """
+    rows = text.strip().splitlines()
+    cleaned = []
+    for row in rows:
+        # Remove extra spaces/dashes between ID and name
+        parts = re.split(r'\s*-\s*|\s+', row.strip(), maxsplit=1)
+        if len(parts) == 2:
+            cleaned.append((parts[0], parts[1]))
+    return cleaned
