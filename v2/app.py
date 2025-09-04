@@ -17,10 +17,11 @@ from cleaner_utils import (
     split_column,
     extract_afili_ids,
     extract_group_ids,
+    split_id_name,
 )
 
 st.set_page_config(page_title="CSV Cleaner & Text Utilities", layout="wide")
-st.title("🧹 CSV Cleaner & Text Utilities")
+st.title("🧹 CSV & Text Utilities")
 
 TAB1, TAB2 = st.tabs(["📂 CSV Cleaning", "📝 Text Utilities"])
 
@@ -155,4 +156,7 @@ with TAB2:
     
     # col8 is intentionally left blank to maintain layout alignment
     with col8:
-        st.write("")  # filler to maintain spacing
+        if st.button("🔎 Split ID and Name"):
+            result = split_id_name(text_input)
+            st.dataframe(pd.DataFrame(result, columns=["ID", "Name"]))
+
