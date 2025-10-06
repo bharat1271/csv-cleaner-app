@@ -136,7 +136,8 @@ def extract_affili_ids_strict(text):
 
 
 def extract_group_ids(text):
-    pattern = r'(?:Processed|Failed|Undefined)\s*\n?\d{9,15}\s*\n?(\d{5,15})'
+    # Look for: Processed/Failed/Undefined → AffilID (any digit length) → GroupID
+    pattern = r'(?:Processed|Failed|Undefined)\s*\n?\d+\s*\n?(\d{5,15})'
     group_ids = re.findall(pattern, text)
     return ','.join(group_ids)
 
@@ -153,4 +154,5 @@ def extract_group_ids(text):
         if len(parts) == 2:
             cleaned.append((parts[0], parts[1]))
     return cleaned
+
 '''
