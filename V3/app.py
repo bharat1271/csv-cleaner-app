@@ -17,6 +17,8 @@ from cleaner_utils import (
     split_column,
     extract_affili_ids_strict,
     extract_group_ids,
+    ids_to_lines,
+    ids_to_csv,
     #split_id_name,
 )
 
@@ -173,3 +175,4 @@ with TAB2:
             if st.button("➡️ Lines → Comma", help="Input: 8 Digit OrgId's/Numbers in a next line format || Output: 8 digit Id's/numbers in a comma saparated format || Tip: useful in quickly converting the format of OrgId's"):
                 result = ids_to_csv(text_input)
                 st.text_area("Converted to CSV Format:", result, height=150, key="to_csv")
+
