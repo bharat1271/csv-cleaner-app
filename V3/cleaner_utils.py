@@ -78,7 +78,7 @@ def split_column(df, col, delimiter=' ', into_two=True):
 # === Text Utility Functions ===
 
 def smart_title_text(text):
-    exceptions = ['and', 'of', 'the', 'a', 'an', 'in']
+    exceptions = ['and', 'of', 'the', 'a', 'an', 'in', 'is']
     words = str(text).lower().split()
     return ' '.join(
         [words[0].capitalize()] + [w if w in exceptions else w.capitalize() for w in words[1:]]
@@ -156,3 +156,10 @@ def extract_group_ids(text):
     return cleaned
 
 '''
+def ids_to_lines(text):
+    ids = [x.strip() for x in text.replace("\n", ",").split(",") if x.strip()]
+    return "\n".join(ids)
+
+def ids_to_csv(text):
+    ids = [x.strip() for x in text.replace(",", "\n").split("\n") if x.strip()]
+    return ",".join(ids)
