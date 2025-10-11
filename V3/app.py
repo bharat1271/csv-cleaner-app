@@ -116,22 +116,22 @@ with TAB2:
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        if st.button("🧠 Convert to Smart Title"):
+        if st.button("🧠 Convert to Smart Title", help="Input: Sentence with inconsistent Capitalization || Output: Text will be in Title format"):
             result = smart_title_text(text_input)
             st.code(result)
 
     with col2:
-        if st.button("🔢 Extract 8-digit IDs"):
+        if st.button("🔢 Extract 8-digit IDs", help="Input: 8 digit Id's OR numbers || Output: first 8 digit of numeric text || Tip: useful in extracting OrgId's"):
             ids = extract_ids(text_input)
             st.code(ids)
 
     with col3:
-        if st.button("🔍 Count IDs"):
+        if st.button("🔍 Count IDs", help="Input: 8 digit Id's OR numbers || Output: count of first 8 digit of numeric text || Tip: useful in counting OrgId's in a input text"):
             count_df = count_ids(text_input)
             st.dataframe(count_df)
 
     with col4:
-        if st.button("🧬 Find Duplicates & Unique IDs"):
+        if st.button("🧬 Find Duplicates & Unique IDs", help="Input: 8 digit Id's OR numbers || Output: saparate duplicate and unique first 8 digit number/OrgId || Tip: useful in find duplicate OrgId's in a input text"):
             dupes, uniques = find_duplicates_and_uniques(text_input)
             st.write(f"**Duplicates:** {dupes}")
             st.write(f"**Unique Values:** {uniques}")
@@ -140,17 +140,17 @@ with TAB2:
     col5, col6, col7, col8 = st.columns(4)
 
     with col5:
-        if st.button("🧾 Extract IDs and Names"):
+        if st.button("🧾 Extract IDs and Names", help="Input: exact copy of Id's and names text from Orgtool || Output: combination of OrgId and Names in a clean excel friendly format || Tip: useful in quickly recording and sharing OrgID and Names"):
             extracted = extract_ids_and_names(text_input)
             st.code(extracted)
 
     with col6:
-        if st.button("📥 Extract AfiliD only"):
+        if st.button("📥 Extract AfiliD only", help="Input: Raw text from processed review page of a collection || Output: Affiliation Id's in comma saparated format || Tip: useful in quickly extracting and sharing AffilID's"):
             afili_result = extract_affili_ids_strict(text_input)
             st.text_area("AfiliD values:", afili_result, height=100, key="afili_output")
 
     with col7:
-        if st.button("📥 Extract Group ID only"):
+        if st.button("📥 Extract Group ID only", help="Input: Raw text from processed review page of a collection || Output: Group Id's in comma saparated format || Tip: useful in quickly extracting and sharing GroupId's"):
             group_result = extract_group_ids(text_input)
             st.text_area("Group ID values:", group_result, height=100, key="group_output")
     
@@ -161,5 +161,15 @@ with TAB2:
             #result = split_id_name(text_input)
             #st.dataframe(pd.DataFrame(result, columns=["ID", "Name"]))
 
+    with st.expander("🔄 ID Format Converter"):
+        colA, colB = st.columns(2)
 
+        with colA:
+            if st.button("➡️ Comma → Lines", help="Input: 8 Digit OrgId's/Numbers in a comma saparated format || Output: 8 digit Id's/numbers in saparate lines || Tip: useful in quickly converting the format of OrgId's"):
+                result = ids_to_lines(text_input)
+                st.text_area("Converted to Line Format:", result, height=150, key="to_lines")
 
+        with colB:
+            if st.button("➡️ Lines → Comma", help="Input: 8 Digit OrgId's/Numbers in a next line format || Output: 8 digit Id's/numbers in a comma saparated format || Tip: useful in quickly converting the format of OrgId's"):
+                result = ids_to_csv(text_input)
+                st.text_area("Converted to CSV Format:", result, height=150, key="to_csv")
