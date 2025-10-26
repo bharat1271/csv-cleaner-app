@@ -19,6 +19,7 @@ from cleaner_utils import (
     extract_group_ids,
     ids_to_lines,
     ids_to_csv,
+    detect_and_clean_junk_characters,
     #split_id_name,
 )
 
@@ -156,12 +157,13 @@ with TAB2:
             group_result = extract_group_ids(text_input)
             st.text_area("Group ID values:", group_result, height=100, key="group_output")
     
-    # col8 is intentionally left blank to maintain layout alignment
-
-    #with col8:
-        #if st.button("🔎 Split ID and Name"):
-            #result = split_id_name(text_input)
-            #st.dataframe(pd.DataFrame(result, columns=["ID", "Name"]))
+    with col8:
+        if st.button("🧹 Detect & Clean Junk Characters"):
+            highlighted, cleaned = detect_and_clean_junk_characters(text_input)
+            st.subheader("🔍 Highlighted Junk Characters")
+            st.code(highlighted, language="text")
+            st.subheader("✨ Cleaned Text")
+            st.code(cleaned, language="text")
 
     with st.expander("🔄 ID Format Converter"):
         colA, colB = st.columns(2)
@@ -175,4 +177,5 @@ with TAB2:
             if st.button("➡️ Lines → Comma", help="Input: 8 Digit OrgId's/Numbers in a next line format || Output: 8 digit Id's/numbers in a comma saparated format || Tip: useful in quickly converting the format of OrgId's"):
                 result = ids_to_csv(text_input)
                 st.text_area("Converted to CSV Format:", result, height=150, key="to_csv")
+
 
