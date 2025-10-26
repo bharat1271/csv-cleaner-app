@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+import unicodedata
 from collections import Counter
 
 # === CSV Cleaning Functions ===
@@ -163,3 +164,68 @@ def ids_to_lines(text):
 def ids_to_csv(text):
     ids = [x.strip() for x in text.replace(",", "\n").split("\n") if x.strip()]
     return ",".join(ids)
+
+def detect_and_clean_junk_characters(text):
+    """
+    Detects non-standard characters and attempts to replace them with ASCII equivalents.
+    Returns:
+      - highlighted_text: original text but junk chars shown in brackets [⋯]
+      - cleaned_text: repaired text (replacing junk look-alikes with Latin equivalents where possible)
+    Notes: mapping can be expanded (HOMOGLYPHS_MAP) based on observed inputs.
+    """
+    if text is None:
+        return "", ""
+
+    highlighted_parts = []
+    cleaned_parts = []
+
+    for ch in text:
+        # quick keep for normal printable ascii & common whitespace/newlines/tabs
+        if 32 <= ord(ch) <= 126 or ch in "\n\r\t":
+            highlighted_parts.append(ch)
+            cleaned_parts.append(ch)
+            continue
+
+        # remove zero-width / invisible characters (but highlight in output)
+        if ch in ZERO_WIDTH:
+            highlighted_parts.append(f"[U+{ord(ch):04X}]")
+            # do not add anything to cleaned_parts (effectively removed)
+            continue
+
+        # direct homoglyph mapping (Cyrillic -> Latin, fullwidth -> ASCII)
+        if ch in HOMOGLYPHS_MAP:
+            replacement = HOMOGLYPHS_MAP[ch]
+            highlighted_parts.append(f"[{ch}]")
+            cleaned_parts.append(replacement)
+            continue
+
+        # try unicode normalization to ascii base (e.g., é -> e)
+        normalized = unicodedata.normalize('NFKD', ch)
+        ascii_equiv = normalized.encode('ascii', 'ignore').decode('ascii', errors='ignore')
+        if ascii_equiv:
+            # ascii_equiv might be multiple chars; pick it
+            highlighted_parts.append(f"[{ch}]")
+            cleaned_parts.append(ascii_equiv)
+            continue
+
+        # Last resort: sometimes copy-paste contains visually similar letters from other scripts
+        # Try to find a character by name that suggests latin lookalike (not perfect but helpful)
+        try:
+            name = unicodedata.name(ch)
+            # crude heuristics: if name contains 'CYRILLIC' or 'GREEK' and a latin lookalike exists
+            if 'CYRILLIC' in name or 'GREEK' in name or 'FULLWIDTH' in name:
+                # We already handled many common cases; highlight and skip (remove) if not mappable
+                highlighted_parts.append(f"[{ch}]")
+                # don't append to cleaned_parts if no safe mapping
+                continue
+        except ValueError:
+            # some control chars might not have a name
+            pass
+
+        # If nothing worked: mark as junk and remove in cleaned output
+        highlighted_parts.append(f"[{ch}]")
+        # cleaned_parts -> nothing (drop)
+
+    highlighted_text = ''.join(highlighted_parts)
+    cleaned_text = ''.join(cleaned_parts)
+    return highlighted_text, cleaned_text
