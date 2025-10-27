@@ -134,7 +134,7 @@ with TAB2:
             st.code(cleaned, language="text")
 
 
-    st.subheader("🆔 Extraction Tools")
+    st.subheader("📊 Extraction Tools")
 
     col3, col4, col5, col6 = st.columns(4)
 
@@ -159,7 +159,7 @@ with TAB2:
             group_result = extract_group_ids(text_input)
             st.text_area("Group ID values:", group_result, height=100, key="group_output")
             
-    st.subheader("📊 ID Utilities")
+    st.subheader("🆔 ID Utilities")
     
     col7, col8, col9, col10 = st.columns(4)
             
@@ -185,6 +185,7 @@ with TAB2:
         if st.button("➡️ Lines → Comma", help="Input: 8 Digit OrgId's/Numbers in a new-line separated format || Output: 8 digit Id's/numbers in a comma separated format || Tip: useful in quickly converting the format"):
             result = ids_to_csv(text_input)
             st.text_area("Converted to CSV Format:", result, height=150, key="to_csv")
+
 
 
 
