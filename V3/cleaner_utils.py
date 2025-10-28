@@ -245,13 +245,11 @@ def detect_and_clean_junk_characters(text):
             cleaned_parts.append(ascii_equiv)
             continue
 
-        # Last resort: sometimes copy-paste contains visually similar letters from other scripts
-        # Try to find a character by name that suggests latin lookalike (not perfect but helpful)
         try:
             name = unicodedata.name(ch)
             # crude heuristics: if name contains 'CYRILLIC' or 'GREEK' and a latin lookalike exists
             if 'CYRILLIC' in name or 'GREEK' in name or 'FULLWIDTH' in name:
-                # We already handled many common cases; highlight and skip (remove) if not mappable
+                # highlight and skip (remove) if not mappable
                 highlighted_parts.append(f"[{ch}]")
                 # don't append to cleaned_parts if no safe mapping
                 continue
@@ -266,4 +264,5 @@ def detect_and_clean_junk_characters(text):
     highlighted_text = ''.join(highlighted_parts)
     cleaned_text = ''.join(cleaned_parts)
     return highlighted_text, cleaned_text
+
 
