@@ -165,7 +165,7 @@ def ids_to_csv(text):
     ids = [x.strip() for x in text.replace(",", "\n").split("\n") if x.strip()]
     return ",".join(ids)
 
-# Common homoglyphs mapping (extend as needed)
+# Common homoglyphs mapping
 HOMOGLYPHS_MAP = {
     # common Cyrillic lowercase -> Latin
     '\u0430': 'a',  # Cyrillic 'а' -> Latin 'a'
@@ -176,7 +176,7 @@ HOMOGLYPHS_MAP = {
     '\u0445': 'x',  # Cyrillic 'х' -> Latin 'x'
     '\u043A': 'k',  # Cyrillic 'к' -> Latin 'k'
     '\u0456': 'i',  # Cyrillic 'і' -> Latin 'i'
-    '\u0455': 's',  # (sometimes used) Cyrillic 'ѕ' -> 's'
+    '\u0455': 's',  # Cyrillic 'ѕ' -> 's'
     # Cyrillic uppercase
     '\u0410': 'A',
     '\u0415': 'E',
@@ -185,13 +185,12 @@ HOMOGLYPHS_MAP = {
     '\u0420': 'P',
     '\u0425': 'X',
     '\u041A': 'K',
-    # Fullwidth Latin (common in copy-paste)
+    # Fullwidth Latin
     'Ａ': 'A', 'Ｂ': 'B', 'Ｃ': 'C', 'Ｄ': 'D', 'Ｅ': 'E', 'Ｆ': 'F',
     'Ｇ': 'G', 'Ｈ': 'H', 'Ｉ': 'I', 'Ｊ': 'J', 'Ｋ': 'K', 'Ｌ': 'L',
     'Ｍ': 'M', 'Ｎ': 'N', 'Ｏ': 'O', 'Ｐ': 'P', 'Ｑ': 'Q', 'Ｒ': 'R',
     'Ｓ': 'S', 'Ｔ': 'T', 'Ｕ': 'U', 'Ｖ': 'V', 'Ｗ': 'W', 'Ｘ': 'X',
     'Ｙ': 'Y', 'Ｚ': 'Z',
-    # Add more if you see specific patterns in your data
 }
 
 # Zero-width / invisible characters to strip
@@ -264,5 +263,6 @@ def detect_and_clean_junk_characters(text):
     highlighted_text = ''.join(highlighted_parts)
     cleaned_text = ''.join(cleaned_parts)
     return highlighted_text, cleaned_text
+
 
 
