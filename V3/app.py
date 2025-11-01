@@ -170,7 +170,7 @@ with TAB2:
             st.dataframe(count_df)
 
     with col8:
-        if st.button("🧬 Find Duplicates & Unique IDs", help="Input: 8 digit Id's OR numbers || Output: saparate duplicate and unique first 8 digit number/OrgId || Tip: useful in find duplicate OrgId's in a input text"):
+        if st.button("🧬 Find Duplicates & Unique Values", help="Input: 8 digit Id's OR numbers || Output: saparate duplicate and unique first 8 digit number/OrgId || Tip: useful in find duplicate OrgId's in a input text"):
             dupes, uniques = find_duplicates_and_uniques(text_input)
             st.write(f"**Duplicates:** {dupes}")
             st.write(f"**Unique Values:** {uniques}")
@@ -185,6 +185,7 @@ with TAB2:
         if st.button("➡️ Lines → Comma", help="Input: 8 Digit OrgId's/Numbers in a new-line separated format || Output: 8 digit Id's/numbers in a comma separated format || Tip: useful in quickly converting the format"):
             result = ids_to_csv(text_input)
             st.text_area("Converted to CSV Format:", result, height=150, key="to_csv")
+
 
 
 
