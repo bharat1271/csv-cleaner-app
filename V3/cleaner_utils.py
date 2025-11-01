@@ -2,6 +2,7 @@ import re
 import pandas as pd
 import unicodedata
 from collections import Counter
+import string
 
 # === CSV Cleaning Functions ===
 
@@ -90,11 +91,39 @@ def extract_ids(text):
     return ','.join(ids)
 
 def find_duplicates_and_uniques(text):
-    elements = re.findall(r'\d{8}', text)
-    count = Counter(elements)
+    """
+    Detects duplicate and unique values (IDs or text) from mixed input.
+    - Supports numeric IDs of 6–15 digits (OrgID, AffilID, GroupID)
+    - Supports text-based values (names, institutions, etc.)
+    - Case-insensitive and punctuation-tolerant
+    """
+    if not text:
+        return "No input provided", ""
+
+    # Try extracting numeric IDs (6–15 digits)
+    ids = re.findall(r'\b\d{6,15}\b', text)
+
+    if ids:
+        # Numeric mode
+        count = Counter(ids)
+    else:
+        # Text mode: split on commas, newlines, or tabs
+        parts = re.split(r'[\n,\t]+', text)
+        # Clean text entries
+        clean_parts = [
+            p.strip().lower().translate(str.maketrans('', '', string.punctuation))
+            for p in parts if p.strip()
+        ]
+        count = Counter(clean_parts)
+
+    # Separate duplicates and uniques
     duplicates = [k for k, v in count.items() if v > 1]
     uniques = [k for k, v in count.items() if v == 1]
-    return ', '.join(duplicates), ', '.join(uniques)
+
+    duplicates_text = ', '.join(duplicates) if duplicates else "No duplicates found"
+    uniques_text = ', '.join(uniques) if uniques else "No unique values found"
+
+    return duplicates_text, uniques_text
 
 def count_ids(text):
     ids = re.findall(r'\d{8}', text)
@@ -263,6 +292,7 @@ def detect_and_clean_junk_characters(text):
     highlighted_text = ''.join(highlighted_parts)
     cleaned_text = ''.join(cleaned_parts)
     return highlighted_text, cleaned_text
+
 
 
 
