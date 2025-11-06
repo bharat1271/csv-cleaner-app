@@ -31,7 +31,7 @@ TAB1, TAB2 = st.tabs(["📂 CSV Cleaning", "📝 Text Utilities"])
 with TAB1:
     st.header("CSV Cleaning Operations")
 
-    uploaded_file = st.file_uploader("Upload CSV File", type="csv")
+    uploaded_file = st.file_uploader("Upload CSV File", type="csv", help="choose any csv or excel file to perform operations")
     if "csv_df" not in st.session_state:
         st.session_state.csv_df = None
     if "csv_logs" not in st.session_state:
@@ -185,6 +185,7 @@ with TAB2:
         if st.button("➡️ Lines → Comma", help="Input: 8 Digit OrgId's/Numbers in a new-line separated format || Output: 8 digit Id's/numbers in a comma separated format || Tip: useful in quickly converting the format"):
             result = ids_to_csv(text_input)
             st.text_area("Converted to CSV Format:", result, height=150, key="to_csv")
+
 
 
 
