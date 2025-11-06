@@ -126,7 +126,7 @@ with TAB2:
             st.code(result)
             
     with col2:
-        if st.button("🧹 Detect & Clean Junk Characters", help="Input: Any sentence with junk characters || Output: Highlight the junk characters and provide clean version of the sentence || Tip: useful in extracting OrgId's"):
+        if st.button("🧹 Detect & Clean Junk Characters", help="Input: Any sentence with junk characters || Output: Highlight the junk characters and provide clean version of the sentence || Tip: useful in OrgDB accuracy profiles"):
             highlighted, cleaned = detect_and_clean_junk_characters(text_input)
             st.subheader("🔍 Highlighted Junk Characters")
             st.code(highlighted, language="text")
