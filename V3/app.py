@@ -126,7 +126,7 @@ with TAB2:
             st.code(result)
             
     with col2:
-        if st.button("🧹 Detect & Clean Junk Characters"):
+        if st.button("🧹 Detect & Clean Junk Characters", help="Input: Any sentence with junk characters || Output: Highlight the junk characters and provide clean version of the sentence || Tip: useful in extracting OrgId's"):
             highlighted, cleaned = detect_and_clean_junk_characters(text_input)
             st.subheader("🔍 Highlighted Junk Characters")
             st.code(highlighted, language="text")
@@ -185,6 +185,7 @@ with TAB2:
         if st.button("➡️ Lines → Comma", help="Input: 8 Digit OrgId's/Numbers in a new-line separated format || Output: 8 digit Id's/numbers in a comma separated format || Tip: useful in quickly converting the format"):
             result = ids_to_csv(text_input)
             st.text_area("Converted to CSV Format:", result, height=150, key="to_csv")
+
 
 
 
