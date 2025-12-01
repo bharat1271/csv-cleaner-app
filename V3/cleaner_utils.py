@@ -3,6 +3,7 @@ import pandas as pd
 import unicodedata
 from collections import Counter
 import string
+from collections import defaultdict
 
 # === CSV Cleaning Functions ===
 
@@ -171,21 +172,8 @@ def extract_group_ids(text):
     group_ids = re.findall(pattern, text)
     return ','.join(group_ids)
 
-'''def split_id_name(text):
-    """
-    Splits lines like '12345678 ABCDEFGH' or '12345678 - ABCDEFGH'
-    into ID and Name cleanly.
-    """
-    rows = text.strip().splitlines()
-    cleaned = []
-    for row in rows:
-        # Remove extra spaces/dashes between ID and name
-        parts = re.split(r'\s*-\s*|\s+', row.strip(), maxsplit=1)
-        if len(parts) == 2:
-            cleaned.append((parts[0], parts[1]))
-    return cleaned
 
-'''
+
 def ids_to_lines(text):
     ids = [x.strip() for x in text.replace("\n", ",").split(",") if x.strip()]
     return "\n".join(ids)
@@ -194,7 +182,8 @@ def ids_to_csv(text):
     ids = [x.strip() for x in text.replace(",", "\n").split("\n") if x.strip()]
     return ",".join(ids)
 
-# Common homoglyphs mapping
+
+# Common homoglyphs mapping (extend as needed)
 HOMOGLYPHS_MAP = {
     # common Cyrillic lowercase -> Latin
     '\u0430': 'a',  # Cyrillic 'а' -> Latin 'a'
@@ -205,7 +194,7 @@ HOMOGLYPHS_MAP = {
     '\u0445': 'x',  # Cyrillic 'х' -> Latin 'x'
     '\u043A': 'k',  # Cyrillic 'к' -> Latin 'k'
     '\u0456': 'i',  # Cyrillic 'і' -> Latin 'i'
-    '\u0455': 's',  # Cyrillic 'ѕ' -> 's'
+    '\u0455': 's',  # (sometimes used) Cyrillic 'ѕ' -> 's'
     # Cyrillic uppercase
     '\u0410': 'A',
     '\u0415': 'E',
@@ -214,12 +203,13 @@ HOMOGLYPHS_MAP = {
     '\u0420': 'P',
     '\u0425': 'X',
     '\u041A': 'K',
-    # Fullwidth Latin
+    # Fullwidth Latin (common in copy-paste)
     'Ａ': 'A', 'Ｂ': 'B', 'Ｃ': 'C', 'Ｄ': 'D', 'Ｅ': 'E', 'Ｆ': 'F',
     'Ｇ': 'G', 'Ｈ': 'H', 'Ｉ': 'I', 'Ｊ': 'J', 'Ｋ': 'K', 'Ｌ': 'L',
     'Ｍ': 'M', 'Ｎ': 'N', 'Ｏ': 'O', 'Ｐ': 'P', 'Ｑ': 'Q', 'Ｒ': 'R',
     'Ｓ': 'S', 'Ｔ': 'T', 'Ｕ': 'U', 'Ｖ': 'V', 'Ｗ': 'W', 'Ｘ': 'X',
     'Ｙ': 'Y', 'Ｚ': 'Z',
+    # Add more if you see specific patterns in your data
 }
 
 # Zero-width / invisible characters to strip
@@ -273,11 +263,13 @@ def detect_and_clean_junk_characters(text):
             cleaned_parts.append(ascii_equiv)
             continue
 
+        # Last resort: sometimes copy-paste contains visually similar letters from other scripts
+        # Try to find a character by name that suggests latin lookalike (not perfect but helpful)
         try:
             name = unicodedata.name(ch)
             # crude heuristics: if name contains 'CYRILLIC' or 'GREEK' and a latin lookalike exists
             if 'CYRILLIC' in name or 'GREEK' in name or 'FULLWIDTH' in name:
-                # highlight and skip (remove) if not mappable
+                # We already handled many common cases; highlight and skip (remove) if not mappable
                 highlighted_parts.append(f"[{ch}]")
                 # don't append to cleaned_parts if no safe mapping
                 continue
@@ -292,7 +284,37 @@ def detect_and_clean_junk_characters(text):
     highlighted_text = ''.join(highlighted_parts)
     cleaned_text = ''.join(cleaned_parts)
     return highlighted_text, cleaned_text
+    
+    
+def count_orgid_occurrences_in_collection_text(collection_text, orgid):
+    """Count exact occurrences of an OrgID in the collection text."""
+    if not collection_text or not orgid:
+        return 0
+    pattern = re.compile(rf"\b{re.escape(str(orgid))}\b")
+    return len(pattern.findall(collection_text))
 
 
+def reconcile_orgid_counts(df, collection_text, orgid_col="OrgID", count_col="Count"):
+    """
+    df must contain:
+      - OrgID
+      - Count (expected number of occurrences)
+    """
+    results = []
 
+    for _, row in df.iterrows():
+        orgid = str(row[orgid_col]).strip()
+        expected = int(row[count_col])
 
+        found = count_orgid_occurrences_in_collection_text(collection_text, orgid)
+
+        status = "PASS" if found == expected else f"FAIL (expected {expected}, found {found})"
+
+        results.append({
+            "OrgID": orgid,
+            "Expected Count": expected,
+            "Found Count": found,
+            "Status": status
+        })
+
+    return pd.DataFrame(results)
