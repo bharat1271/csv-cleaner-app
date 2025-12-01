@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from io import StringIO
 from cleaner_utils import (
     smart_title_text,
     extract_ids,
@@ -20,18 +21,19 @@ from cleaner_utils import (
     ids_to_lines,
     ids_to_csv,
     detect_and_clean_junk_characters,
+    reconcile_orgid_counts,
     #split_id_name,
 )
 
 st.set_page_config(page_title="CSV Cleaner & Text Utilities", layout="wide")
 st.title("🧹 CSV & Text Utilities")
 
-TAB1, TAB2 = st.tabs(["📂 CSV Cleaning", "📝 Text Utilities"])
+TAB1, TAB2, TAB3 = st.tabs(["📂 CSV Cleaning", "📝 Text Utilities", "📌 4GU"])
 
 with TAB1:
     st.header("CSV Cleaning Operations")
 
-    uploaded_file = st.file_uploader("Upload CSV File", type="csv", help="choose any csv or excel file to perform operations")
+    uploaded_file = st.file_uploader("Upload CSV File", type="csv")
     if "csv_df" not in st.session_state:
         st.session_state.csv_df = None
     if "csv_logs" not in st.session_state:
@@ -126,7 +128,7 @@ with TAB2:
             st.code(result)
             
     with col2:
-        if st.button("🧹 Detect & Clean Junk Characters", help="Input: Any sentence with junk characters || Output: Highlight the junk characters and provide clean version of the sentence || Tip: useful in OrgDB accuracy profiles"):
+        if st.button("🧹 Detect & Clean Junk Characters"):
             highlighted, cleaned = detect_and_clean_junk_characters(text_input)
             st.subheader("🔍 Highlighted Junk Characters")
             st.code(highlighted, language="text")
@@ -134,7 +136,7 @@ with TAB2:
             st.code(cleaned, language="text")
 
 
-    st.subheader("📊 Extraction Tools")
+    st.subheader("🆔 Extraction Tools")
 
     col3, col4, col5, col6 = st.columns(4)
 
@@ -159,7 +161,7 @@ with TAB2:
             group_result = extract_group_ids(text_input)
             st.text_area("Group ID values:", group_result, height=100, key="group_output")
             
-    st.subheader("🆔 ID Utilities")
+    st.subheader("📊 ID Utilities")
     
     col7, col8, col9, col10 = st.columns(4)
             
@@ -186,9 +188,55 @@ with TAB2:
             result = ids_to_csv(text_input)
             st.text_area("Converted to CSV Format:", result, height=150, key="to_csv")
 
+with TAB3:
+    st.header("📌 OrgID – Affiliation Count Checker")
 
+    # ----- Input 1: Paste Excel-like table -----
+    pasted_table = st.text_area(
+        "Paste OrgID + Count here (copied from Excel). Example:\n60018562 5\n60022576 3",
+        height=150
+    )
 
+    df = None
+    if pasted_table.strip():
+        try:
+            df = pd.read_csv(StringIO(pasted_table), 
+                             sep=r"\s+|,|\t",
+                             engine="python",
+                             header=None)
 
+            # Assign column names automatically
+            if df.shape[1] == 2:
+                df.columns = ["OrgID", "Count"]
+            else:
+                st.error("Input must have exactly TWO columns: OrgID and Count")
 
+            st.write("Parsed Input:")
+            st.dataframe(df)
 
+        except Exception as e:
+            st.error(f"Could not parse input table: {e}")
 
+    # ----- Input 2: Paste collection text -----
+    collection_text = st.text_area(
+        "Paste raw collection text here (copied from OrgTool page).",
+        height=300
+    )
+
+    # ----- RUN -----
+    if st.button("Run Count Check"):
+        if df is None:
+            st.error("Please paste a valid OrgID+Count table above.")
+        elif not collection_text.strip():
+            st.error("Please paste collection text.")
+        else:
+            output_df = reconcile_orgid_counts(df, collection_text)
+            st.success("Reconciliation Complete!")
+            st.dataframe(output_df)
+
+            st.download_button(
+                "Download Results as CSV",
+                output_df.to_csv(index=False).encode("utf-8"),
+                "orgid_reconciliation.csv",
+                "text/csv"
+            )
