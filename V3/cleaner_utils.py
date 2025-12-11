@@ -183,7 +183,7 @@ def ids_to_csv(text):
     return ",".join(ids)
 
 
-# Common homoglyphs mapping (extend as needed)
+# Common homoglyphs mapping
 HOMOGLYPHS_MAP = {
     # common Cyrillic lowercase -> Latin
     '\u0430': 'a',  # Cyrillic 'а' -> Latin 'a'
@@ -203,13 +203,12 @@ HOMOGLYPHS_MAP = {
     '\u0420': 'P',
     '\u0425': 'X',
     '\u041A': 'K',
-    # Fullwidth Latin (common in copy-paste)
+    # Fullwidth Latin
     'Ａ': 'A', 'Ｂ': 'B', 'Ｃ': 'C', 'Ｄ': 'D', 'Ｅ': 'E', 'Ｆ': 'F',
     'Ｇ': 'G', 'Ｈ': 'H', 'Ｉ': 'I', 'Ｊ': 'J', 'Ｋ': 'K', 'Ｌ': 'L',
     'Ｍ': 'M', 'Ｎ': 'N', 'Ｏ': 'O', 'Ｐ': 'P', 'Ｑ': 'Q', 'Ｒ': 'R',
     'Ｓ': 'S', 'Ｔ': 'T', 'Ｕ': 'U', 'Ｖ': 'V', 'Ｗ': 'W', 'Ｘ': 'X',
     'Ｙ': 'Y', 'Ｚ': 'Z',
-    # Add more if you see specific patterns in your data
 }
 
 # Zero-width / invisible characters to strip
@@ -318,3 +317,4 @@ def reconcile_orgid_counts(df, collection_text, orgid_col="OrgID", count_col="Co
         })
 
     return pd.DataFrame(results)
+
