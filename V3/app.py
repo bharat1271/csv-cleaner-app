@@ -30,8 +30,11 @@ from cleaner_utils import (
 )
 from PIL import Image
 
+import os
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+if os.name == "nt":
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 if "ocr_text" not in st.session_state:
     st.session_state.ocr_text = ""
@@ -371,4 +374,5 @@ with TAB4:
             with st.spinner("Installing translation models..."):
                 msg = install_translation_models_once()
             st.success(msg)
+
 
