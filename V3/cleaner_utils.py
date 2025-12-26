@@ -5,6 +5,15 @@ from collections import Counter
 import string
 from collections import defaultdict
 
+#OCR Module#
+import pytesseract
+from PIL import Image
+import cv2
+import numpy as np
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+#=== Translation Utilities (Local / Offline) ===
+from argostranslate import translate, package
 # === CSV Cleaning Functions ===
 
 def remove_duplicates(df):
@@ -262,8 +271,7 @@ def detect_and_clean_junk_characters(text):
             cleaned_parts.append(ascii_equiv)
             continue
 
-        # Last resort: sometimes copy-paste contains visually similar letters from other scripts
-        # Try to find a character by name that suggests latin lookalike (not perfect but helpful)
+        
         try:
             name = unicodedata.name(ch)
             # crude heuristics: if name contains 'CYRILLIC' or 'GREEK' and a latin lookalike exists
@@ -318,3 +326,130 @@ def reconcile_orgid_counts(df, collection_text, orgid_col="OrgID", count_col="Co
 
     return pd.DataFrame(results)
 
+def run_ocr_on_image(
+    pil_image,
+    lang="eng",
+    ocr_mode="auto"
+):
+
+    # Convert PIL → OpenCV
+    img = np.array(pil_image)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Decide preprocessing
+    if ocr_mode == "raw":
+        processed = gray
+
+    elif ocr_mode == "cjk":
+        processed = gray
+
+    else:
+        # Latin / default
+        processed = cv2.threshold(
+            gray, 150, 255, cv2.THRESH_BINARY
+        )[1]
+
+    # OCR config
+    config = "--psm 6"
+
+    try:
+        text = pytesseract.image_to_string(
+            processed,
+            lang=lang,
+            config=config
+        )
+    except pytesseract.TesseractError as e:
+        return f"OCR failed: {e}"
+
+    return text.strip()
+
+
+def translate_text_local(text, from_lang="auto", to_lang="en"):
+    """
+    Offline translation using Argos Translate.
+    Assumes required language models are already installed.
+    """
+
+    installed_languages = translate.get_installed_languages()
+
+    if not installed_languages:
+        return "⚠️ No translation models installed."
+
+    # Resolve source language
+    if from_lang == "auto":
+        from_language = None
+        for lang in installed_languages:
+            if lang.code != to_lang:
+                from_language = lang
+                break
+    else:
+        from_language = next(
+            (l for l in installed_languages if l.code == from_lang),
+            None
+        )
+
+    to_language = next(
+        (l for l in installed_languages if l.code == to_lang),
+        None
+    )
+
+    if not from_language or not to_language:
+        return "⚠️ Translation model not installed for selected language pair."
+
+    translation = from_language.get_translation(to_language)
+    return translation.translate(text)
+    
+    
+    #translate_text_local
+def get_installed_translation_languages():
+    languages = translate.get_installed_languages()
+    lang_map = {}
+    for lang in languages:
+        label = f"{lang.name} ({lang.code})"
+        lang_map[label] = lang.code
+    return lang_map
+    
+    
+    #for run_ocr_on_image
+def get_tesseract_languages():
+    try:
+        langs = pytesseract.get_languages(config="")
+    except Exception:
+        return {}
+
+    language_map = {}
+    for code in langs:
+        language_map[f"{code}"] = code
+
+    return language_map 
+    
+    
+def install_translation_models_once():
+    installed = translate.get_installed_languages()
+    if installed:
+        return "Translation models already installed."
+
+    package.update_package_index()
+    available_packages = package.get_available_packages()
+
+    required_pairs = [
+        ("zh", "en"),
+        ("de", "en"),
+        ("fr", "en"),
+        ("it", "en"),
+        ("ja", "en"),
+        ("pt", "en"),
+    ]
+
+    installed_any = False
+
+    for from_code, to_code in required_pairs:
+        for pkg in available_packages:
+            if pkg.from_code == from_code and pkg.to_code == to_code:
+                package.install_from_path(pkg.download())
+                installed_any = True
+
+    if installed_any:
+        return "Translation models installed successfully."
+    else:
+        return "No matching translation models found."
