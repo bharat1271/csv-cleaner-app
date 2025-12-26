@@ -240,3 +240,118 @@ with TAB3:
                 "orgid_reconciliation.csv",
                 "text/csv"
             )
+
+with TAB4:
+    st.header("🖼️ Image to Text (OCR)")
+    st.caption(
+        "Upload screenshots or image-based content. "
+        "Select the correct OCR language for best accuracy."
+    )
+
+    uploaded_image = st.file_uploader(
+        "Upload image (PNG / JPG / JPEG)",
+        type=["png", "jpg", "jpeg"]
+    )
+
+    lang_map = get_tesseract_languages()
+
+    if not lang_map:
+        st.error("No Tesseract languages found. Check Tesseract installation.")
+    else:
+        ocr_lang_label = st.selectbox(
+            "OCR Language",
+            list(lang_map.keys()),
+            index=list(lang_map.values()).index("eng") if "eng" in lang_map.values() else 0
+        )
+
+        ocr_lang_code = lang_map[ocr_lang_label]
+
+        if ocr_lang_code.startswith(("chi", "jpn", "kor")):
+            ocr_mode = "cjk"
+        else:
+            ocr_mode = st.selectbox(
+                "OCR Mode",
+                ["auto", "latin", "raw"],
+                index=0
+            )
+
+        if uploaded_image:
+            image = Image.open(uploaded_image)
+
+            col_img, col_txt = st.columns([1, 1])
+
+            with col_img:
+                st.subheader("Image Preview")
+                st.image(image, use_container_width=True)
+
+            with col_txt:
+                st.subheader("Extracted Text")
+
+                with st.spinner("Running OCR..."):
+                    extracted_text = run_ocr_on_image(
+                        image,
+                        lang=ocr_lang_code,
+                        ocr_mode=ocr_mode
+                    )
+
+                st.session_state.ocr_text = st.text_area(
+                    "OCR Output (editable)",
+                    extracted_text,
+                    height=360
+                )
+
+            st.info(
+                "Tip: If text looks like gibberish, the OCR language is incorrect. "
+                "Select the correct language and re-run."
+            )
+
+        st.markdown("### 🌍 Translation (Offline • Beta)")
+
+        lang_map = get_installed_translation_languages()
+
+        if not lang_map:
+            st.warning(
+                "No translation models are installed yet.\n\n"
+                "Please install them once using **Install translation models (one-time)** "
+                "in the Advanced section."
+            )
+        else:
+            col_t1, col_t2 = st.columns(2)
+
+            with col_t1:
+                src_label = st.selectbox(
+                    "From language",
+                    ["Auto-detect"] + list(lang_map.keys())
+                )
+
+            with col_t2:
+                tgt_label = st.selectbox(
+                    "To language",
+                    list(lang_map.keys()),
+                    index=list(lang_map.values()).index("en")
+                    if "en" in lang_map.values() else 0
+                )
+
+            if st.button("Translate"):
+                if not st.session_state.ocr_text.strip():
+                    st.warning("No OCR text available to translate.")
+                else:
+                    with st.spinner("Translating locally..."):
+                        translated = translate_text_local(
+                            st.session_state.ocr_text,
+                            from_lang="auto" if src_label == "Auto-detect" else lang_map[src_label],
+                            to_lang=lang_map[tgt_label]
+                        )
+
+                    st.text_area(
+                        "Translated Text",
+                        translated,
+                        height=350
+                    )
+
+    
+    with st.expander("Advanced: Translation setup"):
+        if st.button("Install / Check Translation Models (One-time)"):
+            with st.spinner("Installing translation models..."):
+                msg = install_translation_models_once()
+            st.success(msg)
