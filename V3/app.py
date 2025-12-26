@@ -22,13 +22,29 @@ from cleaner_utils import (
     ids_to_csv,
     detect_and_clean_junk_characters,
     reconcile_orgid_counts,
-    #split_id_name,
+    run_ocr_on_image,
+    translate_text_local,
+    get_installed_translation_languages,
+    get_tesseract_languages,
+    #install_translation_models_once,
 )
+from PIL import Image
+
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+if "ocr_text" not in st.session_state:
+    st.session_state.ocr_text = ""
 
 st.set_page_config(page_title="CSV Cleaner & Text Utilities", layout="wide")
-st.title("🧹 CSV & Text Utilities")
+st.title("🧹 CSV & Text Utilities Platform")
 
-TAB1, TAB2, TAB3 = st.tabs(["📂 CSV Cleaning", "📝 Text Utilities", "📌 4GU"])
+TAB1, TAB2, TAB3, TAB4 = st.tabs([
+    "📂 CSV Cleaning",
+    "📝 Text Utilities",
+    "📌 4GU",
+    "🖼️ Image to Text (OCR)"
+])
 
 with TAB1:
     st.header("CSV Cleaning Operations")
@@ -355,3 +371,4 @@ with TAB4:
             with st.spinner("Installing translation models..."):
                 msg = install_translation_models_once()
             st.success(msg)
+
