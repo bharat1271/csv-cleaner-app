@@ -366,7 +366,7 @@ def run_ocr_on_image(
 
 
 def translate_text_local(text, from_lang="auto", to_lang="en"):
-   try:
+    try:
         from argostranslate import translate
     except ImportError:
         return "⚠️ Translation library not available."
@@ -406,14 +406,6 @@ def translate_text_local(text, from_lang="auto", to_lang="en"):
     
     #translate_text_local
 def get_installed_translation_languages():
-    """
-    Returns dict like:
-    {
-        'English (en)': 'en',
-        'Chinese (zh)': 'zh',
-        ...
-    }
-    """
     try:
         from argostranslate import translate
     except ImportError:
@@ -442,6 +434,11 @@ def get_tesseract_languages():
     
     
 def install_translation_models_once():
+    try:
+        from argostranslate import translate
+    except ImportError:
+        return {}
+
     installed = translate.get_installed_languages()
     if installed:
         return "Translation models already installed."
@@ -470,6 +467,7 @@ def install_translation_models_once():
         return "Translation models installed successfully."
     else:
         return "No matching translation models found."
+
 
 
 
