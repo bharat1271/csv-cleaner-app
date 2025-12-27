@@ -12,7 +12,6 @@ import cv2
 import numpy as np
 import os
 import pytesseract
-from argostranslate import translate, package
 if os.name == "nt":  # Windows only
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
@@ -367,6 +366,7 @@ def run_ocr_on_image(
 
 
 def translate_text_local(text, from_lang="auto", to_lang="en"):
+    from argostranslate import translate
     """
     Offline translation using Argos Translate.
     Assumes required language models are already installed.
@@ -454,6 +454,7 @@ def install_translation_models_once():
         return "Translation models installed successfully."
     else:
         return "No matching translation models found."
+
 
 
 
