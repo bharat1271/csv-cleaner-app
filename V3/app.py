@@ -35,7 +35,6 @@ os.environ["SPACY_WARNING_IGNORE"] = "true"
 os.environ["SPACY_REQUIRE_GPU"] = "false"
 os.environ["SPACY_DISABLE_PIPELINES"] = "true"
 
-import pytesseract
 
 if "ocr_text" not in st.session_state:
     st.session_state.ocr_text = ""
@@ -375,6 +374,7 @@ with TAB4:
             with st.spinner("Installing translation models..."):
                 msg = install_translation_models_once()
             st.success(msg)
+
 
 
 
