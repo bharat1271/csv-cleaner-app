@@ -31,9 +31,11 @@ from cleaner_utils import (
 from PIL import Image
 
 import os
+# Hard kill spaCy auto behavior on Streamlit Cloud
+os.environ["SPACY_AUTO_DOWNLOAD"] = "false"
 os.environ["SPACY_WARNING_IGNORE"] = "true"
-os.environ["SPACY_REQUIRE_GPU"] = "false"
 os.environ["SPACY_DISABLE_PIPELINES"] = "true"
+os.environ["SPACY_REQUIRE_GPU"] = "false"
 
 
 if "ocr_text" not in st.session_state:
@@ -374,6 +376,7 @@ with TAB4:
             with st.spinner("Installing translation models..."):
                 msg = install_translation_models_once()
             st.success(msg)
+
 
 
 
