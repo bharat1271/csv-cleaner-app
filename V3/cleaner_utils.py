@@ -13,7 +13,7 @@ import numpy as np
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 #=== Translation Utilities (Local / Offline) ===
-from argostranslate import translate, package
+from argostranslate import translate
 # === CSV Cleaning Functions ===
 
 def remove_duplicates(df):
@@ -453,3 +453,4 @@ def install_translation_models_once():
         return "Translation models installed successfully."
     else:
         return "No matching translation models found."
+
