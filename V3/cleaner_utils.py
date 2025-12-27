@@ -11,6 +11,7 @@ from PIL import Image
 import cv2
 import numpy as np
 import os
+import pytesseract
 if os.name == "nt":  # Windows only
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
@@ -455,6 +456,7 @@ def get_tesseract_languages():
 #         return "Translation models installed successfully."
 #     else:
 #         return "No matching translation models found."
+
 
 
 
