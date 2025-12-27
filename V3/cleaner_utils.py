@@ -364,50 +364,50 @@ def run_ocr_on_image(
     return text.strip()
 
 
-def translate_text_local(text, from_lang="auto", to_lang="en"):
-    """
-    Offline translation using Argos Translate.
-    Assumes required language models are already installed.
-    """
+# def translate_text_local(text, from_lang="auto", to_lang="en"):
+#     """
+#     Offline translation using Argos Translate.
+#     Assumes required language models are already installed.
+#     """
 
-    installed_languages = translate.get_installed_languages()
+#     installed_languages = translate.get_installed_languages()
 
-    if not installed_languages:
-        return "⚠️ No translation models installed."
+#     if not installed_languages:
+#         return "⚠️ No translation models installed."
 
-    # Resolve source language
-    if from_lang == "auto":
-        from_language = None
-        for lang in installed_languages:
-            if lang.code != to_lang:
-                from_language = lang
-                break
-    else:
-        from_language = next(
-            (l for l in installed_languages if l.code == from_lang),
-            None
-        )
+#     # Resolve source language
+#     if from_lang == "auto":
+#         from_language = None
+#         for lang in installed_languages:
+#             if lang.code != to_lang:
+#                 from_language = lang
+#                 break
+#     else:
+#         from_language = next(
+#             (l for l in installed_languages if l.code == from_lang),
+#             None
+#         )
 
-    to_language = next(
-        (l for l in installed_languages if l.code == to_lang),
-        None
-    )
+#     to_language = next(
+#         (l for l in installed_languages if l.code == to_lang),
+#         None
+#     )
 
-    if not from_language or not to_language:
-        return "⚠️ Translation model not installed for selected language pair."
+#     if not from_language or not to_language:
+#         return "⚠️ Translation model not installed for selected language pair."
 
-    translation = from_language.get_translation(to_language)
-    return translation.translate(text)
+#     translation = from_language.get_translation(to_language)
+#     return translation.translate(text)
     
     
-    #translate_text_local
-def get_installed_translation_languages():
-    languages = translate.get_installed_languages()
-    lang_map = {}
-    for lang in languages:
-        label = f"{lang.name} ({lang.code})"
-        lang_map[label] = lang.code
-    return lang_map
+#     #translate_text_local
+# def get_installed_translation_languages():
+#     languages = translate.get_installed_languages()
+#     lang_map = {}
+#     for lang in languages:
+#         label = f"{lang.name} ({lang.code})"
+#         lang_map[label] = lang.code
+#     return lang_map
     
     
     #for run_ocr_on_image
@@ -424,33 +424,34 @@ def get_tesseract_languages():
     return language_map 
     
     
-def install_translation_models_once():
-    installed = translate.get_installed_languages()
-    if installed:
-        return "Translation models already installed."
+# def install_translation_models_once():
+#     installed = translate.get_installed_languages()
+#     if installed:
+#         return "Translation models already installed."
 
-    package.update_package_index()
-    available_packages = package.get_available_packages()
+#     package.update_package_index()
+#     available_packages = package.get_available_packages()
 
-    required_pairs = [
-        ("zh", "en"),
-        ("de", "en"),
-        ("fr", "en"),
-        ("it", "en"),
-        ("ja", "en"),
-        ("pt", "en"),
-    ]
+#     required_pairs = [
+#         ("zh", "en"),
+#         ("de", "en"),
+#         ("fr", "en"),
+#         ("it", "en"),
+#         ("ja", "en"),
+#         ("pt", "en"),
+#     ]
 
-    installed_any = False
+#     installed_any = False
 
-    for from_code, to_code in required_pairs:
-        for pkg in available_packages:
-            if pkg.from_code == from_code and pkg.to_code == to_code:
-                package.install_from_path(pkg.download())
-                installed_any = True
+#     for from_code, to_code in required_pairs:
+#         for pkg in available_packages:
+#             if pkg.from_code == from_code and pkg.to_code == to_code:
+#                 package.install_from_path(pkg.download())
+#                 installed_any = True
 
-    if installed_any:
-        return "Translation models installed successfully."
-    else:
-        return "No matching translation models found."
+#     if installed_any:
+#         return "Translation models installed successfully."
+#     else:
+#         return "No matching translation models found."
+
 
