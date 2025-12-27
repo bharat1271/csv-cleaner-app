@@ -414,6 +414,10 @@ def run_ocr_on_image(
     
     #for run_ocr_on_image
 def get_tesseract_languages():
+    try:
+        langs = pytesseract.get_languages(config="")
+    except Exception:
+        return {}
     language_map = {}
     for code in langs:
         language_map[f"{code}"] = code
@@ -450,6 +454,7 @@ def get_tesseract_languages():
 #         return "Translation models installed successfully."
 #     else:
 #         return "No matching translation models found."
+
 
 
 
