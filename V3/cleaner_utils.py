@@ -15,6 +15,8 @@ import pytesseract
 if os.name == "nt":  # Windows only
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
+from argostranslate import translate
+
 # === CSV Cleaning Functions ===
 
 def remove_duplicates(df):
@@ -366,10 +368,6 @@ def run_ocr_on_image(
 
 
 def translate_text_local(text, from_lang="auto", to_lang="en"):
-    try:
-        from argostranslate import translate
-    except ImportError:
-        return "⚠️ Translation library not available."
     """
     Offline translation using Argos Translate.
     Assumes required language models are already installed.
@@ -406,11 +404,6 @@ def translate_text_local(text, from_lang="auto", to_lang="en"):
     
     #translate_text_local
 def get_installed_translation_languages():
-    try:
-        from argostranslate import translate
-    except ImportError:
-        return {}
-    
     languages = translate.get_installed_languages()
     lang_map = {}
     for lang in languages:
@@ -421,11 +414,6 @@ def get_installed_translation_languages():
     
     #for run_ocr_on_image
 def get_tesseract_languages():
-    try:
-        langs = pytesseract.get_languages(config="")
-    except Exception:
-        return {}
-
     language_map = {}
     for code in langs:
         language_map[f"{code}"] = code
@@ -434,11 +422,6 @@ def get_tesseract_languages():
     
     
 def install_translation_models_once():
-    try:
-        from argostranslate import translate
-    except ImportError:
-        return {}
-
     installed = translate.get_installed_languages()
     if installed:
         return "Translation models already installed."
@@ -467,13 +450,5 @@ def install_translation_models_once():
         return "Translation models installed successfully."
     else:
         return "No matching translation models found."
-
-
-
-
-
-
-
-
 
 
