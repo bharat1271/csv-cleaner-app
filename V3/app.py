@@ -34,8 +34,6 @@ import os
 os.environ["SPACY_WARNING_IGNORE"] = "true"
 os.environ["SPACY_REQUIRE_GPU"] = "false"
 os.environ["SPACY_DISABLE_PIPELINES"] = "true"
-if os.name == "nt":
-    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 import pytesseract
 
@@ -377,6 +375,7 @@ with TAB4:
             with st.spinner("Installing translation models..."):
                 msg = install_translation_models_once()
             st.success(msg)
+
 
 
 
