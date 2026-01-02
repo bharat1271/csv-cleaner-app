@@ -72,7 +72,7 @@ Offline Translation (Optional, Local)
 - No external APIs or data sharing
 - Designed for multilingual affiliation and metadata checks
 
-📂 [View v3 Code](./v3)
+📂 [View v3 Code](./V3)
 
 ---
 
