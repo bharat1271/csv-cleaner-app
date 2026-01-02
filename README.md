@@ -1,12 +1,14 @@
 # 🧹 CSV Cleaner App
 
-A simple yet powerful tool for cleaning CSV files and performing text operations, built with **Python** and **Streamlit**.
+A **production-style CSV cleaning and text utilities web application** built with **Python** and **Streamlit**, designed to automate repetitive data-cleaning and QA tasks commonly encountered in **research analytics**, **affiliation profiling**, and **data validation workflows**.
+
+This project evolved iteratively from a local script into a fully interactive web app, with each version adding real-world capabilities.
 
 ---
 
-## 📂 Versions
+## 📂 Versions & Evolution
 
-### ✅ Version 1
+### ✅ Version 1 – Core CSV Cleaning
 - Basic CSV cleaning:
   - Remove duplicates
   - Trim whitespace
@@ -19,21 +21,63 @@ A simple yet powerful tool for cleaning CSV files and performing text operations
 
 ---
 
-### 🚀 Version 2 (Latest)
-- Includes all features of v1, plus:
-  - ✅ Text Tools Section:
-    - Proper-case text formatting (skip small words like *and, of, the*)
-    - Extract 8-digit IDs from text
-    - Count frequency of 8-digit IDs
-    - Compare two texts and find duplicates
-- UI Improvements
+### 🚀 Version 2 – CSV + Basic Text Utilities
+✅ Includes all features of v1, plus:
+- Text Utilities:
+  - Smart title-case formatting (skips stop words like and, of, the)
+  - Extract 8-digit IDs (OrgIDs)
+  - Count frequency of 8-digit IDs
+  - Identify duplicate and unique values
+- UI improvements for better usability
 
 📂 [View v2 Code](./v2)
 
 ---
 
-## 🌐 Live Demo (v2)
-👉 [Click to open the app](https://bh-csv-cleaner-app.streamlit.app/)
+### 🧠 Version 3 – Advanced QA & Automation (Current)
+
+✅ Includes all v2 features, plus significant functional expansion:
+- Advanced CSV Cleaning
+- Step-by-step, selectable cleaning operations
+- Real-time preview of cleaned data
+- Action logs for traceability
+- Download-ready output after each operation
+
+Extended Text Utilities
+
+- Extract OrgIDs, Affiliation IDs, and Group IDs using regex-based logic
+- Detect duplicates and unique values from mixed numeric or text inputs
+- Convert comma-separated IDs ↔ line-separated formats
+- Extract Name–ID pairs from raw Orgtool exports
+- Detect and clean junk/homoglyph characters (copy-paste errors, Unicode issues)
+
+OrgID–Affiliation Count Checker
+
+- Paste OrgID + expected count (from Excel)
+- Paste raw collection text
+- Automatically reconcile expected vs found counts
+- Flag mismatches with clear PASS / FAIL status
+- Download reconciliation results as CSV
+
+Image-to-Text (OCR)
+
+- Upload screenshots or scanned images
+- Extract structured text using local OCR (Tesseract)
+- Optimized for website screenshots and UI text
+- Output reusable text for further processing
+
+Offline Translation (Optional, Local)
+
+- Translate extracted text using local Argos Translate models
+- No external APIs or data sharing
+- Designed for multilingual affiliation and metadata checks
+
+📂 [View v3 Code](./v3)
+
+---
+
+## 🌐 Live Demo (v3)
+👉 [Click to open the app](https://bh-datacleaner-2025.streamlit.app/)
 
 ---
 
@@ -41,6 +85,9 @@ A simple yet powerful tool for cleaning CSV files and performing text operations
 - Python
 - Streamlit
 - Pandas
+- Regular Expressions
+- Tesseract OCR
+- Argos Translate (offline translation)
 
 ---
 
@@ -55,22 +102,28 @@ A simple yet powerful tool for cleaning CSV files and performing text operations
 3. Run Streamlit app:
  streamlit run app.py
 
+⚠️ OCR requires a local Tesseract installation.
+Translation models are installed once from within the app.
 
 ---
 
-## 🔥 Features Overview
-✔ Upload any CSV file  
-✔ Apply multiple cleaning options in one go  
-✔ Text operations for quick formatting & analysis  
-✔ Download cleaned data instantly  
+### 🔥 Key Features at a Glance
+
+✔ Upload → Clean → Preview → Download workflow
+✔ Modular CSV cleaning with traceable logs
+✔ Advanced text and ID extraction utilities
+✔ OrgID vs collection count reconciliation
+✔ OCR for screenshot-based validation
+✔ Local, offline-first design (privacy-safe) 
 
 ---
 
 ## 👤 Author
 **Bharat Kumar**  
-Data Research Analyst | BI Enthusiast | Streamlit Explorer
+Data Research Analyst | Research Intelligence | Data Quality Automation
 
 ---
 
-## ⭐ Contribute
-Have ideas for improvement? Fork the repo or drop a suggestion!
+## ⭐ Contribution & Feedback
+This project is actively evolving.
+Suggestions, improvements, and refactoring ideas are welcome - feel free to fork or raise an issue.
