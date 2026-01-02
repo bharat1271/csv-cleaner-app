@@ -103,7 +103,6 @@ Offline Translation (Optional, Local)
  streamlit run app.py
 
 ⚠️ OCR requires a local Tesseract installation.
-Translation models are installed once from within the app.
 
 ---
 
