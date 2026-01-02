@@ -1,4 +1,4 @@
-# 🧹 CSV Cleaner App
+# 🧹 CSV & Text Utilities App
 
 A **production-style CSV cleaning and text utilities web application** built with **Python** and **Streamlit**, designed to automate repetitive data-cleaning and QA tasks commonly encountered in **research analytics**, **affiliation profiling**, and **data validation workflows**.
 
@@ -51,7 +51,7 @@ Extended Text Utilities
 - Extract Name–ID pairs from raw Orgtool exports
 - Detect and clean junk/homoglyph characters (copy-paste errors, Unicode issues)
 
-OrgID–Affiliation Count Checker
+OrgID-Affiliation Count Checker
 
 - Paste OrgID + expected count (from Excel)
 - Paste raw collection text
