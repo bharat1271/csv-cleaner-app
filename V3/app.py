@@ -23,20 +23,11 @@ from cleaner_utils import (
     detect_and_clean_junk_characters,
     reconcile_orgid_counts,
     run_ocr_on_image,
-    # translate_text_local,
-    # get_installed_translation_languages,
     get_tesseract_languages,
-    # install_translation_models_once,
 )
 from PIL import Image
 
 import os
-# Hard kill spaCy auto behavior on Streamlit Cloud
-os.environ["SPACY_AUTO_DOWNLOAD"] = "false"
-os.environ["SPACY_WARNING_IGNORE"] = "true"
-os.environ["SPACY_DISABLE_PIPELINES"] = "true"
-os.environ["SPACY_REQUIRE_GPU"] = "false"
-
 
 if "ocr_text" not in st.session_state:
     st.session_state.ocr_text = ""
@@ -138,7 +129,6 @@ with TAB2:
 
     text_input = st.text_area("Enter text (IDs, Names, or mixed)", height=150, key="main_text_input")
 
-    # ✍ TEXT CLEANUP
     st.subheader("✍ Text Cleanup")
 
     col1, col2, col3, col4 = st.columns(4)
@@ -212,7 +202,6 @@ with TAB2:
 with TAB3:
     st.header("📌 OrgID – Affiliation Count Checker")
 
-    # ----- Input 1: Paste Excel-like table -----
     pasted_table = st.text_area(
         "Paste OrgID + Count here (copied from Excel). Example:\n60018562 5\n60022576 3",
         height=150
@@ -226,7 +215,6 @@ with TAB3:
                              engine="python",
                              header=None)
 
-            # Assign column names automatically
             if df.shape[1] == 2:
                 df.columns = ["OrgID", "Count"]
             else:
@@ -238,13 +226,11 @@ with TAB3:
         except Exception as e:
             st.error(f"Could not parse input table: {e}")
 
-    # ----- Input 2: Paste collection text -----
     collection_text = st.text_area(
         "Paste raw collection text here (copied from OrgTool page).",
         height=300
     )
 
-    # ----- RUN -----
     if st.button("Run Count Check"):
         if df is None:
             st.error("Please paste a valid OrgID+Count table above.")
@@ -321,61 +307,8 @@ with TAB4:
                     height=360
                 )
 
-            st.info(
-                "Tip: If text looks like gibberish, the OCR language is incorrect. "
-                "Select the correct language and re-run."
-            )
+            st.info("Tip: If text looks like gibberish, the OCR language is incorrect. ""Select the correct language and re-run.")
 
-    #     st.markdown("### 🌍 Translation (Offline • Beta)")
-
-    #     lang_map = get_installed_translation_languages()
-
-    #     if not lang_map:
-    #         st.warning(
-    #             "No translation models are installed yet.\n\n"
-    #             "Please install them once using **Install translation models (one-time)** "
-    #             "in the Advanced section."
-    #         )
-    #     else:
-    #         col_t1, col_t2 = st.columns(2)
-
-    #         with col_t1:
-    #             src_label = st.selectbox(
-    #                 "From language",
-    #                 ["Auto-detect"] + list(lang_map.keys())
-    #             )
-
-    #         with col_t2:
-    #             tgt_label = st.selectbox(
-    #                 "To language",
-    #                 list(lang_map.keys()),
-    #                 index=list(lang_map.values()).index("en")
-    #                 if "en" in lang_map.values() else 0
-    #             )
-
-    #         if st.button("Translate"):
-    #             if not st.session_state.ocr_text.strip():
-    #                 st.warning("No OCR text available to translate.")
-    #             else:
-    #                 with st.spinner("Translating locally..."):
-    #                     translated = translate_text_local(
-    #                         st.session_state.ocr_text,
-    #                         from_lang="auto" if src_label == "Auto-detect" else lang_map[src_label],
-    #                         to_lang=lang_map[tgt_label]
-    #                     )
-
-    #                 st.text_area(
-    #                     "Translated Text",
-    #                     translated,
-    #                     height=350
-    #                 )
-
-    
-    # with st.expander("Advanced: Translation setup"):
-    #     if st.button("Install / Check Translation Models (One-time)"):
-    #         with st.spinner("Installing translation models..."):
-    #             msg = install_translation_models_once()
-    #         st.success(msg)
 
 
 
