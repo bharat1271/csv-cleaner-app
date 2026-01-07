@@ -131,7 +131,7 @@ with TAB2:
 
     text_input = st.text_area("Enter text (IDs, Names, or mixed)", height=150, key="main_text_input")
     # ✍ TEXT CLEANUP
-    with st.expander("✍ Text Cleanup")
+    with st.expander("✍ Text Cleanup"):
 
         col1, col2, col3, col4 = st.columns(4)
     
@@ -149,7 +149,7 @@ with TAB2:
                 st.code(cleaned, language="text")
 
 
-    with st.expander("🆔 Extraction Tools", expanded=True)
+    with st.expander("🆔 Extraction Tools", expanded=True):
 
         col3, col4, col5, col6 = st.columns(4)
     
@@ -174,7 +174,7 @@ with TAB2:
                 group_result = extract_group_ids(text_input)
                 st.text_area("Group ID values:", group_result, height=100, key="group_output")
             
-    with st.expander("📊 ID Utilities")
+    with st.expander("📊 ID Utilities"):
     
         col7, col8, col9, col10 = st.columns(4)
                 
@@ -232,7 +232,7 @@ with TAB2:
             )
 
 with TAB3:
-    with st.expander("📌 OrgID – Affiliation Count Checker (4GU Emergent)")
+    with st.expander("📌 OrgID – Affiliation Count Checker (4GU Emergent)"):
 
         pasted_table = st.text_area(
             "Paste OrgID + Count here (copied from Excel). Example:\n60018562 5\n60022576 3",
@@ -340,6 +340,7 @@ with TAB4:
                 )
 
             st.info("Tip: If text looks like gibberish, the OCR language is incorrect. ""Select the correct language and re-run.")
+
 
 
 
