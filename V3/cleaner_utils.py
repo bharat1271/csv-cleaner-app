@@ -376,5 +376,71 @@ def get_tesseract_languages():
         language_map[f"{code}"] = code
 
     return language_map 
+
+
+def extract_variant_names(text):
+    variants = []
+
+    for line in text.splitlines():
+        line = line.strip()
+
+        # Must start with row number
+        if not re.match(r"^\d+", line):
+            continue
+
+        # Split by TAB first, fallback to 2+ spaces
+        parts = re.split(r"\t+|\s{2,}", line)
+
+        # We need at least index + name
+        if len(parts) >= 2:
+            name = parts[1].strip()
+
+            # Filter out garbage
+            if len(name) > 5:
+                variants.append(name)
+
+    # Deduplicate, preserve order
+    variants = list(dict.fromkeys(variants))
+
+    return "[" + ", ".join(f"\"{v}\"" for v in variants) + "]"
+
+
+def extract_variant_name_city(text):
+    results = []
+
+    for line in text.splitlines():
+        line = line.strip()
+
+        if not re.match(r"^\d+", line):
+            continue
+
+        parts = re.split(r"\t+|\s{2,}", line)
+
+        if len(parts) < 2:
+            continue
+
+        name = parts[1].strip()
+        city = ""
+
+        # Candidate city is usually next column
+        if len(parts) >= 3:
+            candidate = parts[2].strip()
+
+            # Reject country codes / state codes / junk
+            if (
+                len(candidate) > 2 and
+                not candidate.isupper() and
+                not candidate.lower() in {"us", "uk", "au", "in"}
+            ):
+                city = candidate
+
+        if len(name) > 5:
+            combined = f"{name} {city}".strip()
+            results.append(combined)
+
+    results = list(dict.fromkeys(results))
+
+    return "[" + ", ".join(f"\"{v}\"" for v in results) + "]"
     
+
 
