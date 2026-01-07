@@ -22,6 +22,8 @@ from cleaner_utils import (
     ids_to_csv,
     detect_and_clean_junk_characters,
     reconcile_orgid_counts,
+    extract_variant_name_city,
+    extract_variant_names,
     run_ocr_on_image,
     get_tesseract_languages,
 )
@@ -38,7 +40,7 @@ st.title("🧹 CSV & Text Utilities Platform")
 TAB1, TAB2, TAB3, TAB4 = st.tabs([
     "📂 CSV Cleaning",
     "📝 Text Utilities",
-    "📌 4GU",
+    "📌 Project Specific Implementations",
     "🖼️ Image to Text (OCR)"
 ])
 
@@ -128,125 +130,155 @@ with TAB2:
     st.subheader("🆎 Text Processing Tools")
 
     text_input = st.text_area("Enter text (IDs, Names, or mixed)", height=150, key="main_text_input")
+    # ✍ TEXT CLEANUP
+    with st.expander("✍ Text Cleanup")
 
-    st.subheader("✍ Text Cleanup")
-
-    col1, col2, col3, col4 = st.columns(4)
-
-    with col1:
-        if st.button("🧠 Convert to Smart Title", help="Input: Sentence with inconsistent Capitalization || Output: Text will be in Title format"):
-            result = smart_title_text(text_input)
-            st.code(result)
-            
-    with col2:
-        if st.button("🧹 Detect & Clean Junk Characters"):
-            highlighted, cleaned = detect_and_clean_junk_characters(text_input)
-            st.subheader("🔍 Highlighted Junk Characters")
-            st.code(highlighted, language="text")
-            st.subheader("✨ Cleaned Text")
-            st.code(cleaned, language="text")
-
-
-    st.subheader("🆔 Extraction Tools")
-
-    col3, col4, col5, col6 = st.columns(4)
-
-
-    with col3:
-        if st.button("🔢 Extract 8-digit IDs", help="Input: 8 digit Id's OR numbers || Output: first 8 digit of numeric text || Tip: useful in extracting OrgId's"):
-            ids = extract_ids(text_input)
-            st.code(ids)
-            
-    with col4:
-        if st.button("🧾 Extract IDs and Names", help="Input: exact copy of Id's and names text from Orgtool || Output: combination of OrgId and Names in a clean excel friendly format || Tip: useful in quickly recording and sharing OrgID and Names"):
-            extracted = extract_ids_and_names(text_input)
-            st.code(extracted)
-            
-    with col5:
-        if st.button("📥 Extract AfiliD only", help="Input: Raw text from processed review page of a collection || Output: Affiliation Id's in comma saparated format || Tip: useful in quickly extracting and sharing AffilID's"):
-            afili_result = extract_affili_ids_strict(text_input)
-            st.text_area("AfiliD values:", afili_result, height=100, key="afili_output")
-
-    with col6:
-        if st.button("📥 Extract Group ID only", help="Input: Raw text from processed review page of a collection || Output: Group Id's in comma saparated format || Tip: useful in quickly extracting and sharing GroupId's"):
-            group_result = extract_group_ids(text_input)
-            st.text_area("Group ID values:", group_result, height=100, key="group_output")
-            
-    st.subheader("📊 ID Utilities")
+        col1, col2, col3, col4 = st.columns(4)
     
-    col7, col8, col9, col10 = st.columns(4)
+        with col1:
+            if st.button("🧠 Convert to Smart Title", help="Input: Sentence with inconsistent Capitalization || Output: Text will be in Title format"):
+                result = smart_title_text(text_input)
+                st.code(result)
+                
+        with col2:
+            if st.button("🧹 Detect & Clean Junk Characters"):
+                highlighted, cleaned = detect_and_clean_junk_characters(text_input)
+                st.subheader("🔍 Highlighted Junk Characters")
+                st.code(highlighted, language="text")
+                st.subheader("✨ Cleaned Text")
+                st.code(cleaned, language="text")
+
+
+    with st.expander("🆔 Extraction Tools", expanded=True)
+
+        col3, col4, col5, col6 = st.columns(4)
+    
+    
+        with col3:
+            if st.button("🔢 Extract 8-digit IDs", help="Input: 8 digit Id's OR numbers || Output: first 8 digit of numeric text || Tip: useful in extracting OrgId's"):
+                ids = extract_ids(text_input)
+                st.code(ids)
+                
+        with col4:
+            if st.button("🧾 Extract IDs and Names", help="Input: exact copy of Id's and names text from Orgtool || Output: combination of OrgId and Names in a clean excel friendly format || Tip: useful in quickly recording and sharing OrgID and Names"):
+                extracted = extract_ids_and_names(text_input)
+                st.code(extracted)
+                
+        with col5:
+            if st.button("📥 Extract AfiliD only", help="Input: Raw text from processed review page of a collection || Output: Affiliation Id's in comma saparated format || Tip: useful in quickly extracting and sharing AffilID's"):
+                afili_result = extract_affili_ids_strict(text_input)
+                st.text_area("AfiliD values:", afili_result, height=100, key="afili_output")
+    
+        with col6:
+            if st.button("📥 Extract Group ID only", help="Input: Raw text from processed review page of a collection || Output: Group Id's in comma saparated format || Tip: useful in quickly extracting and sharing GroupId's"):
+                group_result = extract_group_ids(text_input)
+                st.text_area("Group ID values:", group_result, height=100, key="group_output")
             
+    with st.expander("📊 ID Utilities")
+    
+        col7, col8, col9, col10 = st.columns(4)
+                
+    
+        with col7:
+            if st.button("🔍 Count IDs", help="Input: 8 digit Id's OR numbers || Output: count of first 8 digit of numeric text || Tip: useful in counting OrgId's in a input text"):
+                count_df = count_ids(text_input)
+                st.dataframe(count_df)
+    
+        with col8:
+            if st.button("🧬 Find Duplicates & Unique Values", help="Input: 8 digit Id's OR numbers || Output: saparate duplicate and unique first 8 digit number/OrgId || Tip: useful in find duplicate OrgId's in a input text"):
+                dupes, uniques = find_duplicates_and_uniques(text_input)
+                st.write(f"**Duplicates:** {dupes}")
+                st.write(f"**Unique Values:** {uniques}")
+                
+    
+        with col9:
+            if st.button("➡️ Comma → Lines", help="Input: 8 Digit OrgId's/Numbers in a comma separated format || Output: 8 digit Id's/numbers in separate lines || Tip: useful in quickly converting the format"):
+                result = ids_to_lines(text_input)
+                st.text_area("Converted to Line Format:", result, height=150, key="to_lines")
+    
+        with col10:
+            if st.button("➡️ Lines → Comma", help="Input: 8 Digit OrgId's/Numbers in a new-line separated format || Output: 8 digit Id's/numbers in a comma separated format || Tip: useful in quickly converting the format"):
+                result = ids_to_csv(text_input)
+                st.text_area("Converted to CSV Format:", result, height=150, key="to_csv")
 
-    with col7:
-        if st.button("🔍 Count IDs", help="Input: 8 digit Id's OR numbers || Output: count of first 8 digit of numeric text || Tip: useful in counting OrgId's in a input text"):
-            count_df = count_ids(text_input)
-            st.dataframe(count_df)
+    with st.expander("### 🧩 Variant Extraction"):
 
-    with col8:
-        if st.button("🧬 Find Duplicates & Unique Values", help="Input: 8 digit Id's OR numbers || Output: saparate duplicate and unique first 8 digit number/OrgId || Tip: useful in find duplicate OrgId's in a input text"):
-            dupes, uniques = find_duplicates_and_uniques(text_input)
-            st.write(f"**Duplicates:** {dupes}")
-            st.write(f"**Unique Values:** {uniques}")
-            
+        col11, col12, col13, col14 = st.columns(4)
 
-    with col9:
-        if st.button("➡️ Comma → Lines", help="Input: 8 Digit OrgId's/Numbers in a comma separated format || Output: 8 digit Id's/numbers in separate lines || Tip: useful in quickly converting the format"):
-            result = ids_to_lines(text_input)
-            st.text_area("Converted to Line Format:", result, height=150, key="to_lines")
+        with col11:
+            if st.button(
+                "🏷️ Extract Variant Names",
+                help="Input: Raw OrgTool Variants page text, Output: [\"Variant1\",\"Variant2\"]"
+            ):
+                variant_only = extract_variant_names(text_input)
+                st.text_area(
+                    "Variant Names",
+                    variant_only,
+                    height=150,
+                    key="variant_only_output"
+                )
 
-    with col10:
-        if st.button("➡️ Lines → Comma", help="Input: 8 Digit OrgId's/Numbers in a new-line separated format || Output: 8 digit Id's/numbers in a comma separated format || Tip: useful in quickly converting the format"):
-            result = ids_to_csv(text_input)
-            st.text_area("Converted to CSV Format:", result, height=150, key="to_csv")
+        with col12:
+            if st.button(
+                "🏙️ Variant + City",
+                help="Input: Raw OrgTool Variants page text, Output: [\"Variant City\",\"Variant City\"]"
+            ):
+                variant_city = extract_variant_name_city(text_input)
+                st.text_area(
+                    "Variant + City",
+                    variant_city,
+                    height=150,
+                    key="variant_city_output"
+            )
 
 with TAB3:
-    st.header("📌 OrgID – Affiliation Count Checker")
+    with st.expander("📌 OrgID – Affiliation Count Checker (4GU Emergent)")
 
-    pasted_table = st.text_area(
-        "Paste OrgID + Count here (copied from Excel). Example:\n60018562 5\n60022576 3",
-        height=150
-    )
-
-    df = None
-    if pasted_table.strip():
-        try:
-            df = pd.read_csv(StringIO(pasted_table), 
-                             sep=r"\s+|,|\t",
-                             engine="python",
-                             header=None)
-
-            if df.shape[1] == 2:
-                df.columns = ["OrgID", "Count"]
+        pasted_table = st.text_area(
+            "Paste OrgID + Count here (copied from Excel). Example:\n60018562 5\n60022576 3",
+            height=150
+        )
+    
+        df = None
+        if pasted_table.strip():
+            try:
+                df = pd.read_csv(StringIO(pasted_table), 
+                                 sep=r"\s+|,|\t",
+                                 engine="python",
+                                 header=None)
+    
+                if df.shape[1] == 2:
+                    df.columns = ["OrgID", "Count"]
+                else:
+                    st.error("Input must have exactly TWO columns: OrgID and Count")
+    
+                st.write("Parsed Input:")
+                st.dataframe(df)
+    
+            except Exception as e:
+                st.error(f"Could not parse input table: {e}")
+    
+        collection_text = st.text_area(
+            "Paste raw collection text here (copied from OrgTool page).",
+            height=300
+        )
+    
+        if st.button("Run Count Check"):
+            if df is None:
+                st.error("Please paste a valid OrgID+Count table above.")
+            elif not collection_text.strip():
+                st.error("Please paste collection text.")
             else:
-                st.error("Input must have exactly TWO columns: OrgID and Count")
-
-            st.write("Parsed Input:")
-            st.dataframe(df)
-
-        except Exception as e:
-            st.error(f"Could not parse input table: {e}")
-
-    collection_text = st.text_area(
-        "Paste raw collection text here (copied from OrgTool page).",
-        height=300
-    )
-
-    if st.button("Run Count Check"):
-        if df is None:
-            st.error("Please paste a valid OrgID+Count table above.")
-        elif not collection_text.strip():
-            st.error("Please paste collection text.")
-        else:
-            output_df = reconcile_orgid_counts(df, collection_text)
-            st.success("Reconciliation Complete!")
-            st.dataframe(output_df)
-
-            st.download_button(
-                "Download Results as CSV",
-                output_df.to_csv(index=False).encode("utf-8"),
-                "orgid_reconciliation.csv",
-                "text/csv"
-            )
+                output_df = reconcile_orgid_counts(df, collection_text)
+                st.success("Reconciliation Complete!")
+                st.dataframe(output_df)
+    
+                st.download_button(
+                    "Download Results as CSV",
+                    output_df.to_csv(index=False).encode("utf-8"),
+                    "orgid_reconciliation.csv",
+                    "text/csv"
+                )
 
 with TAB4:
     st.header("🖼️ Image to Text (OCR)")
@@ -308,6 +340,7 @@ with TAB4:
                 )
 
             st.info("Tip: If text looks like gibberish, the OCR language is incorrect. ""Select the correct language and re-run.")
+
 
 
 
