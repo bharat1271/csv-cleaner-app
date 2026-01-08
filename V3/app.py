@@ -22,8 +22,8 @@ from cleaner_utils import (
     ids_to_csv,
     detect_and_clean_junk_characters,
     reconcile_orgid_counts,
-    extract_variant_name_city,
-    extract_variant_names,
+    # extract_variant_name_city,
+    # extract_variant_names,
     run_ocr_on_image,
     get_tesseract_languages,
 )
@@ -201,35 +201,35 @@ with TAB2:
                 result = ids_to_csv(text_input)
                 st.text_area("Converted to CSV Format:", result, height=150, key="to_csv")
 
-    with st.expander("### 🧩 Variant Extraction"):
+    # with st.expander("### 🧩 Variant Extraction"):
 
-        col11, col12, col13, col14 = st.columns(4)
+    #     col11, col12, col13, col14 = st.columns(4)
 
-        with col11:
-            if st.button(
-                "🏷️ Extract Variant Names",
-                help="Input: Raw OrgTool Variants page text, Output: [\"Variant1\",\"Variant2\"]"
-            ):
-                variant_only = extract_variant_names(text_input)
-                st.text_area(
-                    "Variant Names",
-                    variant_only,
-                    height=150,
-                    key="variant_only_output"
-                )
+    #     with col11:
+    #         if st.button(
+    #             "🏷️ Extract Variant Names",
+    #             help="Input: Raw OrgTool Variants page text, Output: [\"Variant1\",\"Variant2\"]"
+    #         ):
+    #             variant_only = extract_variant_names(text_input)
+    #             st.text_area(
+    #                 "Variant Names",
+    #                 variant_only,
+    #                 height=150,
+    #                 key="variant_only_output"
+    #             )
 
-        with col12:
-            if st.button(
-                "🏙️ Variant + City",
-                help="Input: Raw OrgTool Variants page text, Output: [\"Variant City\",\"Variant City\"]"
-            ):
-                variant_city = extract_variant_name_city(text_input)
-                st.text_area(
-                    "Variant + City",
-                    variant_city,
-                    height=150,
-                    key="variant_city_output"
-            )
+    #     with col12:
+    #         if st.button(
+    #             "🏙️ Variant + City",
+    #             help="Input: Raw OrgTool Variants page text, Output: [\"Variant City\",\"Variant City\"]"
+    #         ):
+    #             variant_city = extract_variant_name_city(text_input)
+    #             st.text_area(
+    #                 "Variant + City",
+    #                 variant_city,
+    #                 height=150,
+    #                 key="variant_city_output"
+    #         )
 
 with TAB3:
     with st.expander("📌 OrgID – Affiliation Count Checker (4GU Emergent)"):
@@ -340,6 +340,7 @@ with TAB4:
                 )
 
             st.info("Tip: If text looks like gibberish, the OCR language is incorrect. ""Select the correct language and re-run.")
+
 
 
 
