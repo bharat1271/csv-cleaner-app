@@ -30,7 +30,7 @@ if "ocr_text" not in st.session_state:
 st.set_page_config(page_title="CSV Cleaner & Text Utilities", layout="wide")
 st.title("🧹 CSV & Text Utilities Platform")
 
-TAB1, TAB2, TAB43 = st.tabs([
+TAB1, TAB2, TAB3 = st.tabs([
     "📂 CSV Cleaning",
     "📝 Text Utilities",
     "🖼️ Image to Text (OCR)"
@@ -140,6 +140,7 @@ with TAB2:
                 st.subheader("✨ Cleaned Text")
                 st.code(cleaned, language="text")
 
+    with st.expander("📊 ID Utilities"):
     
         col5, col6, col7, col8 = st.columns(4)
                 
@@ -226,6 +227,7 @@ with TAB3:
                 )
 
             st.info("Tip: If text looks like gibberish, the OCR language is incorrect. ""Select the correct language and re-run.")
+
 
 
 
