@@ -97,10 +97,6 @@ def smart_title_text(text):
         [words[0].capitalize()] + [w if w in exceptions else w.capitalize() for w in words[1:]]
     ) if words else text
 
-def extract_ids(text):
-    ids = re.findall(r'\d{8}', text)
-    return ','.join(ids)
-
 def find_duplicates_and_uniques(text):
     """
     Detects duplicate and unique values (IDs or text) from mixed input.
@@ -140,49 +136,6 @@ def count_ids(text):
     ids = re.findall(r'\d{8}', text)
     id_count = Counter(ids)
     return pd.DataFrame(id_count.items(), columns=['ID', 'Count'])
-
-def extract_ids_and_names(text):
-    lines = text.strip().split("\n")
-    results = []
-    skip_keywords = ["PART_OF", "RENAMED_AS", "MERGED_WITH", "AFFILIATED_WITH"]
-
-    for i, line in enumerate(lines):
-        # Case 1: ID and Name on the same line (even if followed by extra columns)
-        match = re.match(r'^\s*(\d{8})\s+([A-Za-z][^\t]+)', line)
-        if match:
-            id_val, name_val = match.groups()
-            results.append(f"{id_val}\t{name_val.strip()}")
-            continue
-
-        # Case 2: ID on one line, Name on the next line
-        if re.match(r'^\s*\d{8}\s*$', line) and i + 1 < len(lines):
-            id_val = line.strip()
-            name_val = lines[i + 1].strip()
-
-            if not any(keyword in name_val for keyword in skip_keywords):
-                results.append(f"{id_val}\t{name_val}")
-
-    return "\n".join(results)
-    
-def extract_affili_ids_strict(text):
-    """
-    Extracts only AffilIDs:
-    - Always capture the number that comes right after 'Processed', 'Failed', or 'Undefined'.
-    - Works for both 8-digit and longer AffilIDs.
-    - Skips OrgIDs that appear elsewhere.
-    """
-    pattern = r'(?:Processed|Failed|Undefined)\s+(\d+)'
-    matches = re.findall(pattern, text)
-    return ",".join(matches)
-
-
-def extract_group_ids(text):
-    # Look for: Processed/Failed/Undefined → AffilID (any digit length) → GroupID
-    pattern = r'(?:Processed|Failed|Undefined)\s*\n?\d+\s*\n?(\d{5,15})'
-    group_ids = re.findall(pattern, text)
-    return ','.join(group_ids)
-
-
 
 def ids_to_lines(text):
     ids = [x.strip() for x in text.replace("\n", ",").split(",") if x.strip()]
@@ -292,40 +245,6 @@ def detect_and_clean_junk_characters(text):
     highlighted_text = ''.join(highlighted_parts)
     cleaned_text = ''.join(cleaned_parts)
     return highlighted_text, cleaned_text
-    
-    
-def count_orgid_occurrences_in_collection_text(collection_text, orgid):
-    """Count exact occurrences of an OrgID in the collection text."""
-    if not collection_text or not orgid:
-        return 0
-    pattern = re.compile(rf"\b{re.escape(str(orgid))}\b")
-    return len(pattern.findall(collection_text))
-
-
-def reconcile_orgid_counts(df, collection_text, orgid_col="OrgID", count_col="Count"):
-    """
-    df must contain:
-      - OrgID
-      - Count (expected number of occurrences)
-    """
-    results = []
-
-    for _, row in df.iterrows():
-        orgid = str(row[orgid_col]).strip()
-        expected = int(row[count_col])
-
-        found = count_orgid_occurrences_in_collection_text(collection_text, orgid)
-
-        status = "PASS" if found == expected else f"FAIL (expected {expected}, found {found})"
-
-        results.append({
-            "OrgID": orgid,
-            "Expected Count": expected,
-            "Found Count": found,
-            "Status": status
-        })
-
-    return pd.DataFrame(results)
 
 def run_ocr_on_image(
     pil_image,
@@ -376,71 +295,3 @@ def get_tesseract_languages():
         language_map[f"{code}"] = code
 
     return language_map 
-
-
-def extract_variant_names(text):
-    variants = []
-
-    for line in text.splitlines():
-        line = line.strip()
-
-        # Must start with row number
-        if not re.match(r"^\d+", line):
-            continue
-
-        # Split by TAB first, fallback to 2+ spaces
-        parts = re.split(r"\t+|\s{2,}", line)
-
-        # We need at least index + name
-        if len(parts) >= 2:
-            name = parts[1].strip()
-
-            # Filter out garbage
-            if len(name) > 5:
-                variants.append(name)
-
-    # Deduplicate, preserve order
-    variants = list(dict.fromkeys(variants))
-
-    return "[" + ", ".join(f"\"{v}\"" for v in variants) + "]"
-
-
-def extract_variant_name_city(text):
-    results = []
-
-    for line in text.splitlines():
-        line = line.strip()
-
-        if not re.match(r"^\d+", line):
-            continue
-
-        parts = re.split(r"\t+|\s{2,}", line)
-
-        if len(parts) < 2:
-            continue
-
-        name = parts[1].strip()
-        city = ""
-
-        # Candidate city is usually next column
-        if len(parts) >= 3:
-            candidate = parts[2].strip()
-
-            # Reject country codes / state codes / junk
-            if (
-                len(candidate) > 2 and
-                not candidate.isupper() and
-                not candidate.lower() in {"us", "uk", "au", "in"}
-            ):
-                city = candidate
-
-        if len(name) > 5:
-            combined = f"{name} {city}".strip()
-            results.append(combined)
-
-    results = list(dict.fromkeys(results))
-
-    return "[" + ", ".join(f"\"{v}\"" for v in results) + "]"
-    
-
-
