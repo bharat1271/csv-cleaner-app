@@ -25,8 +25,6 @@ This project evolved iteratively from a local script into a fully interactive we
 ✅ Includes all features of v1, plus:
 - Text Utilities:
   - Smart title-case formatting (skips stop words like and, of, the)
-  - Extract 8-digit IDs (OrgIDs)
-  - Count frequency of 8-digit IDs
   - Identify duplicate and unique values
 - UI improvements for better usability
 
@@ -45,19 +43,9 @@ This project evolved iteratively from a local script into a fully interactive we
 
 Extended Text Utilities
 
-- Extract OrgIDs, Affiliation IDs, and Group IDs using regex-based logic
 - Detect duplicates and unique values from mixed numeric or text inputs
 - Convert comma-separated IDs ↔ line-separated formats
-- Extract Name–ID pairs from raw Orgtool exports
 - Detect and clean junk/homoglyph characters (copy-paste errors, Unicode issues)
-
-OrgID-Affiliation Count Checker
-
-- Paste OrgID + expected count (from Excel)
-- Paste raw collection text
-- Automatically reconcile expected vs found counts
-- Flag mismatches with clear PASS / FAIL status
-- Download reconciliation results as CSV
 
 Image-to-Text (OCR)
 
@@ -77,7 +65,7 @@ Offline Translation (Optional, Local)
 ---
 
 ## 🌐 Live Demo (v3)
-👉 [Click to open the app](https://bh-datacleaner-2025.streamlit.app/)
+👉 [Click to open the app](https://bh-datacleaner.streamlit.app/)
 
 ---
 
@@ -110,8 +98,7 @@ Offline Translation (Optional, Local)
 
 ✔ Upload → Clean → Preview → Download workflow
 ✔ Modular CSV cleaning with traceable logs
-✔ Advanced text and ID extraction utilities
-✔ OrgID vs collection count reconciliation
+✔ Advanced text utilities
 ✔ OCR for screenshot-based validation
 ✔ Local, offline-first design (privacy-safe) 
 
